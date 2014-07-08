@@ -137,6 +137,12 @@
 			Assert.True(updated.Labels.Any(l => l.Name == "foo"));
 
 			await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
+
+			try
+			{
+				await github.Issue.Labels.Delete("kzu", "sandbox", "foo");
+			}
+			catch { }
 		}
 	}
 }

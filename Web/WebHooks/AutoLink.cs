@@ -42,7 +42,8 @@ using OctoHook.Diagnostics;
 				return;
 
             // Find the story with the same prefix.
-			var story = await FindStoryAsync(@event.Repository.FullName, storyPrefix.Value);
+			var repository = @event.Repository.Owner.Login + "/" + @event.Repository.Name;
+			var story = await FindStoryAsync(repository, storyPrefix.Value);
 			if (story == null)
 			{
 				tracer.Warn("Issue #{0} has story prefix '{1}' but no matching story was found with such prefix.",

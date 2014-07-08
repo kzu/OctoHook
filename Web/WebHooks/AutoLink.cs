@@ -69,6 +69,8 @@ using OctoHook.Diagnostics;
 					@event.Repository.Name, 
 					@event.Issue.Number, 
 					update);
+
+				tracer.Info("Established new story link between issue #{0} and story {1}.", @event.Issue.Number, issueLink);
             }
 			else
 			{

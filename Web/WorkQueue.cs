@@ -13,7 +13,7 @@
 	{
 		static readonly ITracer tracer = Tracer.Get<WorkQueue>();
 
-		BlockingCollection<Task> tasks = new BlockingCollection<Task>();
+		BlockingCollection<Action> queue = new BlockingCollection<Action>();
 		Thread worker;
 
 		public WorkQueue()
@@ -23,20 +23,18 @@
 			worker.Start();
 		}
 
-		public void Queue(Task work)
+		public void Queue(Action work)
 		{
-			tracer.Info("New work queued");
-			tasks.Add(work);
+			queue.Add(work);
 		}
 
 		private void ProcessWork()
 		{
-			foreach (var task in tasks.GetConsumingEnumerable())
+			foreach (var action in queue.GetConsumingEnumerable())
 			{
-				using (tracer.StartActivity("Completing work"))
-				{
-					task.Wait();
-				}
+				tracer.Info("Completing work.");
+				action();
+				tracer.Info("Completed work.");
 			}
 		}
 

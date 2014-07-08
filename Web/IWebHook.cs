@@ -5,6 +5,6 @@
 
     public interface IWebHook<TEvent>
     {
-        Task ProcessAsync(TEvent @event);
+        void Process(TEvent @event);
     }
 }

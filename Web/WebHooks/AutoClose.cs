@@ -27,6 +27,11 @@
 			this.github = github;
 		}
 
+		public void Process(PushEvent @event)
+		{
+			ProcessAsync(@event).Wait();
+		}
+
 		public async Task ProcessAsync(PushEvent @event)
 		{
 			var closingCommits = @event.Commits.Where(c => CloseExpr.IsMatch(c.Message)).ToArray();

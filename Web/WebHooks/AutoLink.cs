@@ -23,7 +23,12 @@ using OctoHook.Diagnostics;
 			this.github = github;
 		}
 
-		public async Task ProcessAsync(IssuesEvent @event)
+		public void Process(IssuesEvent @event)
+		{
+			ProcessAsync(@event).Wait();
+		}
+
+		private async Task ProcessAsync(IssuesEvent @event)
 		{
             var storyPrefix = storyPrefixExpr.Match(@event.Issue.Title);
             if (!storyPrefix.Success)

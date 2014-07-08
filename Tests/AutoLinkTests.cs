@@ -40,7 +40,7 @@
 
 			var linker = new AutoLink(github);
 
-			await linker.ProcessAsync(new Octokit.Events.IssuesEvent
+			linker.Process(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = task,
@@ -78,7 +78,7 @@
 
 			var linker = new AutoLink(github);
 
-			await linker.ProcessAsync(new Octokit.Events.IssuesEvent
+			linker.Process(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = task,

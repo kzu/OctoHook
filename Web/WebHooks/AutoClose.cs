@@ -70,9 +70,13 @@
 					new IssueUpdate
 					{
 						State = ItemState.Closed,
+						Assignee = "",
 					});
 
-				tracer.Info("Closed issue #{0} automatically.", issue.Number);
+				if (issue.Assignee != null)
+					tracer.Info("Closed issue #{0} automatically and unassigned from '{1}'.", issue.Number, issue.Assignee.Login);
+				else
+					tracer.Info("Closed issue #{0} automatically.", issue.Number);
 			}
 		}
 	}

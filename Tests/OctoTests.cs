@@ -8,6 +8,7 @@
     using System.Threading;
     using Xunit;
 	using System.Linq;
+	using System.Threading.Tasks;
 
     public class OctoTests
     {
@@ -40,5 +41,22 @@
             // NOTE: we get NOTHING since the labels are AND'ed together.
             Assert.Equal(0, stories.Count);
         }
-    }
+
+		[Fact]
+		public async Task when_updating_issue_then_can_clear_assignee()
+		{
+            var github = new GitHubClient(
+                new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+
+            await github.Issue.Update("kzu", "sandbox", 56, new IssueUpdate
+            {
+                State = ItemState.Open,
+                Assignee = "",
+            });
+
+			var issue = await github.Issue.Get("kzu", "sandbox", 56);
+
+			Assert.Null(issue.Assignee);
+		}
+	}
 }

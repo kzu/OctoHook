@@ -67,7 +67,7 @@ using OctoHook.Diagnostics;
             }
 			else
 			{
-				tracer.Verbose("Skipping issue #{0} since it already contains story link to #{1}.", @event.Issue.Number, issueLink);
+				tracer.Verbose("Skipping issue #{0} since it already contains story link to {1}.", @event.Issue.Number, issueLink);
 			}
 		}
 

@@ -1,0 +1,74 @@
+﻿namespace OctoHook.WebHooks
+{
+	using Octokit;
+	using Octokit.Events;
+	using System.Text.RegularExpressions;
+	using System.Linq;
+	using System.Threading.Tasks;
+	using OctoHook.CommonComposition;
+	using OctoHook.Diagnostics;
+
+	/// <summary>
+	/// Forcedly closes issues even if they aren't closed automatically by GitHub, 
+	/// which happens when the associated commit is pushed to a non-default branch.
+	/// </summary>
+	[Component]
+	public class AutoClose : IWebHook<PushEvent>
+	{
+		static readonly ITracer tracer = Tracer.Get<AutoClose>();
+		static readonly Regex CloseExpr = new Regex(@"(close[s|d]?|fix(es|ed)?|resolve[s|d]?) \#\d+",
+				RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		static Regex IssueNumberExpr = new Regex(@"(?<=\#)\d+", RegexOptions.Compiled);
+
+		private IGitHubClient github;
+
+		public AutoClose(IGitHubClient github)
+		{
+			this.github = github;
+		}
+
+		public async Task ProcessAsync(PushEvent @event)
+		{
+			var closingCommits = @event.Commits.Where(c => CloseExpr.IsMatch(c.Message)).ToArray();
+			if (closingCommits.Length == 0)
+			{
+				tracer.Verbose("There are no commits to process that have a close/fix/resolve message.");
+				return;
+			}
+
+			tracer.Verbose("Found {0} commits to process that have a close/fix/resolve message.", closingCommits.Length);
+
+			var closedIssues = closingCommits
+				.SelectMany(c => IssueNumberExpr
+					.Matches(c.Message)
+					.OfType<Match>()
+					.Select(m => int.Parse(m.Value)))
+				.Distinct()
+				.Select(number => github.Issue.Get(
+					@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+					@event.Repository.Name,
+					number));
+
+			foreach (var closedIssue in closedIssues)
+			{
+				var issue = await closedIssue;
+				if (issue.State == ItemState.Closed)
+				{
+					tracer.Verbose("Issue #{0} was already closed.", issue.Number);
+					continue;
+				}
+
+				await github.Issue.Update(
+					@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+					@event.Repository.Name,
+					issue.Number,
+					new IssueUpdate
+					{
+						State = ItemState.Closed,
+					});
+
+				tracer.Info("Closed issue #{0} automatically.", issue.Number);
+			}
+		}
+	}
+}

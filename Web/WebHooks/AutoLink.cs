@@ -46,7 +46,7 @@ using OctoHook.Diagnostics;
 			var story = await FindStoryAsync(repository, storyPrefix.Value);
 			if (story == null)
 			{
-				tracer.Warn("Issue #{0} has story prefix '{1}' but no matching story was found with such prefix.",
+				tracer.Warn("Issue #{0} has story prefix '{1}' but no matching issue with the label 'Story' or 'story' was found with such prefix.",
 					@event.Issue.Number, storyPrefix.Value);
 				return;
 			}

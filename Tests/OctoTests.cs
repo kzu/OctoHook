@@ -7,6 +7,7 @@
     using System.IO;
     using System.Threading;
     using Xunit;
+	using System.Linq;
 
     public class OctoTests
     {

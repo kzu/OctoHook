@@ -37,6 +37,10 @@ using OctoHook.Diagnostics;
                 return;
 			}
 
+			// Skip issues that are the story itself.
+			if (@event.Issue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
+				return;
+
             // Find the story with the same prefix.
 			var story = await FindStoryAsync(@event.Repository.FullName, storyPrefix.Value);
 			if (story == null)
@@ -86,6 +90,9 @@ using OctoHook.Diagnostics;
 
 		private async Task<Issue> FindIssueAsync(string repository, string query, ItemState state, string label)
 		{
+			tracer.Verbose("Querying for '{0}' on repo '{1}' with state '{2}' and label '{3}'.",
+				query, repository, state, label);
+
             var stories = await github.Search.SearchIssues(new SearchIssuesRequest(query)
             {
                 Labels = new[] { label },
@@ -93,6 +100,8 @@ using OctoHook.Diagnostics;
                 Type = IssueTypeQualifier.Issue,
 				State = state,
             });
+
+			tracer.Verbose("Results: {0}.", stories.TotalCount);
 
 			return stories.Items.FirstOrDefault();
 		}

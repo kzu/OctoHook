@@ -8,6 +8,7 @@
 	using OctoHook.Diagnostics;
 	using Octokit;
 	using Octokit.Internal;
+	using System;
 	using System.Configuration;
 	using System.Diagnostics;
 	using System.Reflection;
@@ -21,7 +22,12 @@
 		protected void Application_Start()
 		{
 			var manager = new TracerManager();
-			manager.SetTracingLevel("*", SourceLevels.All);
+
+			var tracingLevel = ConfigurationManager.AppSettings["TracingLevel"];
+			SourceLevels sourceLevel = SourceLevels.Information;
+			Enum.TryParse<SourceLevels>(tracingLevel, out sourceLevel);
+
+			manager.SetTracingLevel("*", sourceLevel);
 			manager.AddListener("*", new RealtimeTraceListener("OctoHook"));
 
 			Tracer.Initialize(manager);

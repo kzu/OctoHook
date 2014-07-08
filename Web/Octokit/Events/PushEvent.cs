@@ -32,6 +32,8 @@
 		}
 
 		public string Ref { get; set; }
+		[JsonProperty("ref_name")]
+		public string RefName { get; set; }
 		public string After { get; set; }
 		public string Before { get; set; }
 		public bool Created { get; set; }
@@ -41,6 +43,8 @@
 		public CommitInfo[] Commits { get; set; }
 		[JsonProperty("head_commit")]
 		public CommitInfo HeadCommit { get; set; }
+		[JsonProperty("distinct_commits")]
+		public CommitInfo[] DistinctCommits { get; set; }
 		public Repository Repository { get; set; }
 		public UserInfo Pusher { get; set; }
 	}

@@ -5,6 +5,7 @@
 
     public interface IWebHook<TEvent>
     {
+		string Describe(TEvent @event);
         void Process(TEvent @event);
     }
 }

@@ -26,6 +26,14 @@
 			this.github = github;
 		}
 
+		public string Describe(IssuesEvent @event)
+		{
+			return string.Format("AutoLabel https://github.com/{0}/{1}/issues/{2}", 
+				@event.Repository.Owner.Login, 
+				@event.Repository.Name, 
+				@event.Issue.Number);
+		}
+
 		public void Process(IssuesEvent @event)
 		{
 			ProcessAsync(@event).Wait();

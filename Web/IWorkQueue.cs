@@ -5,6 +5,6 @@
 
 	public interface IWorkQueue
 	{
-		void Queue(Action work);
+		void Queue(Action work, string description);
 	}
 }

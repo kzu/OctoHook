@@ -60,7 +60,7 @@
 			foreach (var hook in locator.GetAllInstances<IWebHook<TEvent>>().AsParallel())
 			{
 				tracer.Verbose("Queuing process with '{0}' hook.", hook.GetType().Name);
-				work.Queue(() => hook.Process(@event));
+				work.Queue(() => hook.Process(@event), hook.Describe(@event));
 			}
 		}
 	}

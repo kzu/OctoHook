@@ -13,7 +13,9 @@
 	{
 		static readonly ITracer tracer = Tracer.Get<WorkQueue>();
 
-		BlockingCollection<Action> queue = new BlockingCollection<Action>();
+		const int maxRetries = 5;
+
+		BlockingCollection<WorkEntry> queue = new BlockingCollection<WorkEntry>();
 		Thread worker;
 
 		public WorkQueue()
@@ -23,22 +25,52 @@
 			worker.Start();
 		}
 
-		public void Queue(Action work)
+		public void Queue(Action work, string description)
 		{
-			queue.Add(work);
+			queue.Add(new WorkEntry(work, description));
 		}
 
 		private void ProcessWork()
 		{
-			foreach (var action in queue.GetConsumingEnumerable())
+			foreach (var work in queue.GetConsumingEnumerable())
 			{
-				action();
+				try
+				{
+					tracer.Verbose("Atempt {0}: {1}.", work.Retries++, work.Description);
+					work.Action();
+					tracer.Verbose("Successfully run: {2}.", work.Description);
+				}
+				catch (Exception ex)
+				{
+					if (work.Retries < 5)
+					{
+						tracer.Warn("Failed to run: {0}. Retrying later.", work.Description);
+						queue.Add(work);
+					}
+					else
+					{
+						tracer.Error(ex, "Failed to run: {0}. Discarding work.", work.Description);
+					}
+				}
 			}
 		}
 
 		public void Dispose()
 		{
 			worker.Abort();
+		}
+
+		private class WorkEntry
+		{
+			public WorkEntry(Action action, string description)
+			{
+				this.Action = action;
+				this.Description = description;
+			}
+
+			public Action Action { get; private set; }
+			public string Description { get; private set; }
+			public int Retries { get; set; }
 		}
 	}
 }

@@ -27,6 +27,14 @@
 			this.github = github;
 		}
 
+		public string Describe(PushEvent @event)
+		{
+			return string.Format("AutoLink https://github.com/{0}/{1}/commit/{2}", 
+				@event.Repository.Owner.Login, 
+				@event.Repository.Name, 
+				@event.HeadCommit.Sha.Substring(0, 6));
+		}
+
 		public void Process(PushEvent @event)
 		{
 			ProcessAsync(@event).Wait();

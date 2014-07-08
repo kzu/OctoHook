@@ -40,7 +40,7 @@
 
 			type = keys.First();
 
-			tracer.Info("Received GitHub callback for event of type '{0}'.", type);
+			tracer.Verbose("Received GitHub callback for event of type '{0}'.", type);
 
 			switch (type)
 			{
@@ -59,7 +59,7 @@
 		{
 			foreach (var hook in locator.GetAllInstances<IWebHook<TEvent>>().AsParallel())
 			{
-				tracer.Info("Queuing process with '{0}' hook.", hook.GetType().Name);
+				tracer.Verbose("Queuing process with '{0}' hook.", hook.GetType().Name);
 				work.Queue(() => hook.Process(@event));
 			}
 		}

@@ -18,7 +18,7 @@
 
 		public WorkQueue()
 		{
-			tracer.Info("Started new worker queue.");
+			tracer.Verbose("Started new worker queue.");
 			worker = new Thread(ProcessWork);
 			worker.Start();
 		}
@@ -32,9 +32,7 @@
 		{
 			foreach (var action in queue.GetConsumingEnumerable())
 			{
-				tracer.Info("Completing work.");
 				action();
-				tracer.Info("Completed work.");
 			}
 		}
 

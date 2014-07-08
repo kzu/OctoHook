@@ -1,20 +1,20 @@
 ﻿namespace OctoHook.WebHooks
 {
-    using Octokit;
-    using Octokit.Events;
-    using System;
-    using System.Text.RegularExpressions;
-    using System.Linq;
-    using System.Collections.ObjectModel;
+	using Octokit;
+	using Octokit.Events;
+	using System;
+	using System.Text.RegularExpressions;
+	using System.Linq;
+	using System.Collections.ObjectModel;
 	using OctoHook.CommonComposition;
 	using System.Threading.Tasks;
-using OctoHook.Diagnostics;
+	using OctoHook.Diagnostics;
 
 	[Component]
-    public class AutoLink : IWebHook<IssuesEvent>
-    {
+	public class AutoLink : IWebHook<IssuesEvent>
+	{
 		static readonly ITracer tracer = Tracer.Get<AutoLink>();
-        static readonly Regex storyPrefixExpr = new Regex(@"\[[^\]]+\]", RegexOptions.Compiled);
+		static readonly Regex storyPrefixExpr = new Regex(@"\[[^\]]+\]", RegexOptions.Compiled);
 
 		private IGitHubClient github;
 
@@ -30,18 +30,18 @@ using OctoHook.Diagnostics;
 
 		private async Task ProcessAsync(IssuesEvent @event)
 		{
-            var storyPrefix = storyPrefixExpr.Match(@event.Issue.Title);
-            if (!storyPrefix.Success)
+			var storyPrefix = storyPrefixExpr.Match(@event.Issue.Title);
+			if (!storyPrefix.Success)
 			{
 				tracer.Verbose("Skipping issue #{0} without a story prefix: '{1}'.", @event.Issue.Number, @event.Issue.Title);
-                return;
+				return;
 			}
 
 			// Skip issues that are the story itself.
 			if (@event.Issue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
 				return;
 
-            // Find the story with the same prefix.
+			// Find the story with the same prefix.
 			var repository = @event.Repository.Owner.Login + "/" + @event.Repository.Name;
 			var story = await FindStoryAsync(repository, storyPrefix.Value);
 			if (story == null)
@@ -51,31 +51,31 @@ using OctoHook.Diagnostics;
 				return;
 			}
 
-            // See if story link exists in the issue description.
+			// See if story link exists in the issue description.
 			// Need to retrieve the full issue, since the event only contains the title
 			var issue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number);
-            if (issue.Body == null || !issue.Body.Contains("#" + story.Number))
-            {
-                var update = new IssueUpdate
-                {
-                    Body = (issue.Body == null ? "" : issue.Body + @"
+			if (issue.Body == null || !issue.Body.Contains("#" + story.Number))
+			{
+				var update = new IssueUpdate
+				{
+					Body = (issue.Body == null ? "" : issue.Body + @"
 
 ")
 						+ "Story #" + story.Number,
-                    State = issue.State,
-                };
+					State = issue.State,
+				};
 
 				await github.Issue.Update(
-					@event.Repository.Owner.Login, 
-					@event.Repository.Name, 
-					issue.Number, 
+					@event.Repository.Owner.Login,
+					@event.Repository.Name,
+					issue.Number,
 					update);
 
 				tracer.Info("Established new story link between issue #{0} and story #{1}.", @event.Issue.Number, story.Number);
-            }
+			}
 			else
 			{
-				tracer.Verbose("Skipping issue #{0} since it already contains story link to #{1}.", @event.Issue.Number, story.Number);
+				tracer.Info("Skipping issue #{0} as it already contains story link to #{1}.", @event.Issue.Number, story.Number);
 			}
 		}
 
@@ -97,13 +97,13 @@ using OctoHook.Diagnostics;
 			tracer.Verbose("Querying for '{0}' on repo '{1}' with state '{2}' and label '{3}'.",
 				query, repository, state, label);
 
-            var stories = await github.Search.SearchIssues(new SearchIssuesRequest(query)
-            {
-                Labels = new[] { label },
-                Repo = repository,
-                Type = IssueTypeQualifier.Issue,
+			var stories = await github.Search.SearchIssues(new SearchIssuesRequest(query)
+			{
+				Labels = new[] { label },
+				Repo = repository,
+				Type = IssueTypeQualifier.Issue,
 				State = state,
-            });
+			});
 
 			tracer.Verbose("Results: {0}.", stories.TotalCount);
 

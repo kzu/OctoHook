@@ -59,7 +59,7 @@
 				var issue = await closedIssue;
 				if (issue.State == ItemState.Closed)
 				{
-					tracer.Verbose("Issue #{0} was already closed.", issue.Number);
+					tracer.Verbose("Skipping issue #{0} as it was already closed.", issue.Number);
 					continue;
 				}
 

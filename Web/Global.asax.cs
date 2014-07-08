@@ -35,8 +35,8 @@
 			GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(
 				ContainerConfiguration.Configure(queue));
 
-			Tracer.Get<WebApiApplication>().Info("Starting web application...");
-			Tracer.Get<WebApiApplication>().Info(
+			Tracer.Get<WebApiApplication>().Info("{0} Version {1}",
+				Assembly.GetExecutingAssembly().GetName().Name,
 				Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
 
 			GlobalConfiguration.Configure(WebApiConfig.Register);

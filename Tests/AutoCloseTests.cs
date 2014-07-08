@@ -18,6 +18,11 @@
 	{
 		static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 
+		static AutoCloseTests()
+		{
+			AutoMapper.Mapper.CreateMap<Repository, PushEvent.RepositoryInfo>();
+		}
+
 		[Fact]
 		public void when_parsing_issue_message_then_can_detect_close_verbs()
 		{
@@ -59,7 +64,7 @@
 						Message = "Closes #" + task.Number
 					},
 				},
-				Repository = repository
+				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
 			});
 
 			var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
@@ -100,7 +105,7 @@
 						Message = "Closes #" + task2.Number
 					},
 				},
-				Repository = repository
+				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
 			});
 
 			var updated1 = await github.Issue.Get("kzu", "sandbox", task1.Number);
@@ -139,7 +144,7 @@
 						Message = "Closes #" + task1.Number + " and #" + task2.Number
 					},
 				},
-				Repository = repository
+				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
 			});
 
 			var updated1 = await github.Issue.Get("kzu", "sandbox", task1.Number);

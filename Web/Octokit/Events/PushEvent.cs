@@ -31,6 +31,11 @@
 			public string UserName { get; set; }
 		}
 
+		public class RepositoryInfo : Repository
+		{
+			public new string Organization { get; set; }
+		}
+
 		public string Ref { get; set; }
 		[JsonProperty("ref_name")]
 		public string RefName { get; set; }
@@ -45,7 +50,7 @@
 		public CommitInfo HeadCommit { get; set; }
 		[JsonProperty("distinct_commits")]
 		public CommitInfo[] DistinctCommits { get; set; }
-		public Repository Repository { get; set; }
+		public RepositoryInfo Repository { get; set; }
 		public UserInfo Pusher { get; set; }
 	}
 }

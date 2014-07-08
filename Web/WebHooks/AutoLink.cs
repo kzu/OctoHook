@@ -41,7 +41,11 @@
 			var storyPrefix = storyPrefixExpr.Match(@event.Issue.Title);
 			if (!storyPrefix.Success)
 			{
-				tracer.Verbose("Skipping issue #{0} without a story prefix: '{1}'.", @event.Issue.Number, @event.Issue.Title);
+				tracer.Verbose("Skipping issue {0}/{1}#{2} without a story prefix: '{3}'.", 
+					@event.Repository.Owner.Login, 
+					@event.Repository.Name,
+					@event.Issue.Number, 
+					@event.Issue.Title);
 				return;
 			}
 
@@ -54,8 +58,11 @@
 			var story = await FindStoryAsync(repository, storyPrefix.Value);
 			if (story == null)
 			{
-				tracer.Warn("Issue #{0} has story prefix '{1}' but no matching issue with the label 'Story' or 'story' was found with such prefix.",
-					@event.Issue.Number, storyPrefix.Value);
+				tracer.Warn("Issue {0}/{1}#{2} has story prefix '{3}' but no matching issue with the label 'Story' or 'story' was found with such prefix.",
+					@event.Repository.Owner.Login, 
+					@event.Repository.Name,
+					@event.Issue.Number, 
+					storyPrefix.Value);
 				return;
 			}
 
@@ -79,11 +86,19 @@
 					issue.Number,
 					update);
 
-				tracer.Info("Established new story link between issue #{0} and story #{1}.", @event.Issue.Number, story.Number);
+				tracer.Info("Established new story link between issue {0}/{1}#{2} and story #{3}.", 
+					@event.Repository.Owner.Login, 
+					@event.Repository.Name,
+					@event.Issue.Number, 
+					story.Number);
 			}
 			else
 			{
-				tracer.Info("Skipping issue #{0} as it already contains story link to #{1}.", @event.Issue.Number, story.Number);
+				tracer.Info("Skipping issue {0}/{1}#{2} as it already contains story link to #{3}.", 
+					@event.Repository.Owner.Login, 
+					@event.Repository.Name,
+					@event.Issue.Number, 
+					story.Number);
 			}
 		}
 

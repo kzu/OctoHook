@@ -67,7 +67,10 @@
 				var issue = await closedIssue;
 				if (issue.State == ItemState.Closed && issue.Assignee == null)
 				{
-					tracer.Verbose("Skipping issue #{0} as it was already closed and unassigned.", issue.Number);
+					tracer.Verbose("Skipping issue {0}/{1}#{2} as it was already closed and unassigned.", 
+						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+						@event.Repository.Name,
+						issue.Number);
 					continue;
 				}
 
@@ -82,9 +85,16 @@
 					});
 
 				if (issue.Assignee != null)
-					tracer.Info("Closed issue #{0} automatically and unassigned from '{1}'.", issue.Number, issue.Assignee.Login);
+					tracer.Info("Closed issue {0}/{1}#{2} automatically and unassigned from '{3}'.", 
+						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+						@event.Repository.Name,
+						issue.Number, 
+						issue.Assignee.Login);
 				else
-					tracer.Info("Closed issue #{0} automatically.", issue.Number);
+					tracer.Info("Closed issue {0}/{1}#{2} automatically.", 
+						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+						@event.Repository.Name,
+						issue.Number);
 			}
 		}
 	}

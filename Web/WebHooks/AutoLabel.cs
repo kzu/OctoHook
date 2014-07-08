@@ -45,7 +45,11 @@
 			var labelMatch = labelExpr.Match(issueTitle);
 			if (!labelMatch.Success)
 			{
-				tracer.Verbose("Skipping issue #{0} without auto-labels.", @event.Issue.Number, @event.Issue.Title);
+				tracer.Verbose("Skipping issue {0}/{1}#{2} without auto-labels.", 
+					@event.Repository.Owner.Login, 
+					@event.Repository.Name,
+					@event.Issue.Number, 
+					@event.Issue.Title);
 				return;
 			}
 
@@ -74,6 +78,12 @@
 			}
 
 			await github.Issue.Update(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number, updateIssue);
+
+			tracer.Info("Applied automatic labels {0} to issue {0}/{1}#{2}.", 
+				string.Join(", ", updateIssue.Labels), 
+				@event.Repository.Owner.Login, 
+				@event.Repository.Name,
+				@event.Issue.Number);
 		}
 	}
 }

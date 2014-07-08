@@ -105,6 +105,7 @@
     <None Include="app.config" />
     <None Include="AutoClose.json" />
     <None Include="packages.config" />
+    <None Include="test.json" />
     <None Include="Token" />
     <None Include="Token.sample" />
   </ItemGroup>

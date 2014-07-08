@@ -7,6 +7,8 @@
 	using System.Threading.Tasks;
 	using OctoHook.CommonComposition;
 	using OctoHook.Diagnostics;
+	using System.Collections.Generic;
+	using System;
 
 	/// <summary>
 	/// Forcedly closes issues even if they aren't closed automatically by GitHub, 
@@ -29,9 +31,9 @@
 
 		public string Describe(PushEvent @event)
 		{
-			return string.Format("AutoLink https://github.com/{0}/{1}/commit/{2}", 
-				@event.Repository.Owner.Login, 
-				@event.Repository.Name, 
+			return string.Format("AutoClose https://github.com/{0}/{1}/commit/{2}",
+				@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+				@event.Repository.Name,
 				@event.HeadCommit.Sha.Substring(0, 6));
 		}
 
@@ -40,9 +42,11 @@
 			ProcessAsync(@event).Wait();
 		}
 
-		public async Task ProcessAsync(PushEvent @event)
+		private async Task ProcessAsync(PushEvent @event)
 		{
-			var closingCommits = @event.Commits.Where(c => CloseExpr.IsMatch(c.Message)).ToArray();
+			var closingCommits = @event.Commits.Where(c => CloseExpr.IsMatch(c.Message) && IssueNumberExpr.IsMatch(c.Message))
+				.Distinct(new SelectorComparer<PushEvent.CommitInfo, string>(c => c.Sha))
+				.ToArray();
 			if (closingCommits.Length == 0)
 			{
 				tracer.Verbose("There are no commits to process that have a close/fix/resolve message.");
@@ -55,22 +59,41 @@
 				.SelectMany(c => IssueNumberExpr
 					.Matches(c.Message)
 					.OfType<Match>()
-					.Select(m => int.Parse(m.Value)))
-				.Distinct()
-				.Select(number => github.Issue.Get(
-					@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
-					@event.Repository.Name,
-					number));
+					.Select(m => new
+					{
+						Commit = c.Sha,
+						IssueNumber = int.Parse(m.Value),
+						GetIssue = github.Issue.Get(
+							@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+							@event.Repository.Name,
+							int.Parse(m.Value)),
+					})
+				);
 
 			foreach (var closedIssue in closedIssues)
 			{
-				var issue = await closedIssue;
+				Issue issue;
+				try
+				{
+					issue = await closedIssue.GetIssue;
+				}
+				catch (NotFoundException)
+				{
+					tracer.Warn("Referred issue #{0} does not exist in repository {1}/{2}.",
+						closedIssue.IssueNumber,
+						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
+						@event.Repository.Name);
+
+					continue;
+				}
+
 				if (issue.State == ItemState.Closed && issue.Assignee == null)
 				{
-					tracer.Verbose("Skipping issue {0}/{1}#{2} as it was already closed and unassigned.", 
+					tracer.Verbose("Skipping issue {0}/{1}#{2} as it was already closed and unassigned.",
 						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
 						@event.Repository.Name,
 						issue.Number);
+
 					continue;
 				}
 
@@ -85,16 +108,36 @@
 					});
 
 				if (issue.Assignee != null)
-					tracer.Info("Closed issue {0}/{1}#{2} automatically and unassigned from '{3}'.", 
+					tracer.Info("Closed issue {0}/{1}#{2} automatically and unassigned from '{3}'.",
 						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
 						@event.Repository.Name,
-						issue.Number, 
+						issue.Number,
 						issue.Assignee.Login);
 				else
-					tracer.Info("Closed issue {0}/{1}#{2} automatically.", 
+					tracer.Info("Closed issue {0}/{1}#{2} automatically.",
 						@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
 						@event.Repository.Name,
 						issue.Number);
+			}
+		}
+
+		private class SelectorComparer<T, TResult> : IEqualityComparer<T>
+		{
+			private Func<T, TResult> selector;
+
+			public SelectorComparer(Func<T, TResult> selector)
+			{
+				this.selector = selector;
+			}
+
+			public bool Equals(T x, T y)
+			{
+				return Object.Equals(selector(x), selector(y));
+			}
+
+			public int GetHashCode(T obj)
+			{
+				return selector(obj).GetHashCode();
 			}
 		}
 	}

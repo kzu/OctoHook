@@ -52,29 +52,30 @@ using OctoHook.Diagnostics;
 			}
 
             // See if story link exists in the issue description.
-            var issueLink = "#" + story.Number;
-            if (@event.Issue.Body == null || !@event.Issue.Body.Contains(issueLink))
+			// Need to retrieve the full issue, since the event only contains the title
+			var issue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number);
+            if (issue.Body == null || !issue.Body.Contains("#" + story.Number))
             {
                 var update = new IssueUpdate
                 {
-                    Body = (@event.Issue.Body == null ? "" : @"
+                    Body = (issue.Body == null ? "" : issue.Body + @"
 
 ")
-						+ "Story " + issueLink,
-                    State = @event.Issue.State,
+						+ "Story #" + story.Number,
+                    State = issue.State,
                 };
 
 				await github.Issue.Update(
 					@event.Repository.Owner.Login, 
 					@event.Repository.Name, 
-					@event.Issue.Number, 
+					issue.Number, 
 					update);
 
-				tracer.Info("Established new story link between issue #{0} and story {1}.", @event.Issue.Number, issueLink);
+				tracer.Info("Established new story link between issue #{0} and story #{1}.", @event.Issue.Number, story.Number);
             }
 			else
 			{
-				tracer.Verbose("Skipping issue #{0} since it already contains story link to {1}.", @event.Issue.Number, issueLink);
+				tracer.Verbose("Skipping issue #{0} since it already contains story link to #{1}.", @event.Issue.Number, story.Number);
 			}
 		}
 

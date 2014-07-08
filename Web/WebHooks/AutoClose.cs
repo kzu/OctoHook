@@ -57,9 +57,9 @@
 			foreach (var closedIssue in closedIssues)
 			{
 				var issue = await closedIssue;
-				if (issue.State == ItemState.Closed)
+				if (issue.State == ItemState.Closed && issue.Assignee == null)
 				{
-					tracer.Verbose("Skipping issue #{0} as it was already closed.", issue.Number);
+					tracer.Verbose("Skipping issue #{0} as it was already closed and unassigned.", issue.Number);
 					continue;
 				}
 

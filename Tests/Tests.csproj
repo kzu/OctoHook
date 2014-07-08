@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoCloseTests.cs" />
+    <Compile Include="AutoLabelTests.cs" />
     <Compile Include="CompositionTests.cs" />
     <Compile Include="AutoLinkTests.cs" />
     <Compile Include="OctoTests.cs" />

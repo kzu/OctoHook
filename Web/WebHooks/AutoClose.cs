@@ -16,7 +16,7 @@
 	public class AutoClose : IWebHook<PushEvent>
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoClose>();
-		static readonly Regex CloseExpr = new Regex(@"(close[s|d]?|fix(es|ed)?|resolve[s|d]?) \#\d+",
+		static readonly Regex CloseExpr = new Regex(@"(close[s|d]?|fix(es|ed)?|resolve[s|d]?)",
 				RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 		static Regex IssueNumberExpr = new Regex(@"(?<=\#)\d+", RegexOptions.Compiled);
 

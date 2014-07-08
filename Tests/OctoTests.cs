@@ -58,5 +58,22 @@
 
 			Assert.Null(issue.Assignee);
 		}
+
+		[Fact]
+		public async Task when_updating_issue_then_can_assign_non_existent_label()
+		{
+            var github = new GitHubClient(
+                new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+
+            await github.Issue.Update("kzu", "sandbox", 56, new IssueUpdate
+            {
+                State = ItemState.Open,
+                Labels = { "foo" },
+            });
+
+			var issue = await github.Issue.Get("kzu", "sandbox", 56);
+
+			Assert.True(issue.Labels.Any(l => l.Name == "foo"));
+		}
 	}
 }

@@ -28,7 +28,7 @@
 			Enum.TryParse<SourceLevels>(tracingLevel, out sourceLevel);
 
 			manager.SetTracingLevel("*", sourceLevel);
-			manager.AddListener("*", new RealtimeTraceListener("OctoHook"));
+			manager.AddListener("*", new RealtimeTraceListener(ConfigurationManager.AppSettings["TracerHub"]));
 
 			Tracer.Initialize(manager);
 

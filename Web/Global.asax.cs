@@ -30,7 +30,8 @@
 				ContainerConfiguration.Configure(queue));
 
 			Tracer.Get<WebApiApplication>().Info("Starting web application...");
-			Tracer.Get<WebApiApplication>().Info(Assembly.GetExecutingAssembly().FullName);
+			Tracer.Get<WebApiApplication>().Info(
+				Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
 
 			GlobalConfiguration.Configure(WebApiConfig.Register);
 		}

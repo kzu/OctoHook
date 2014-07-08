@@ -28,7 +28,7 @@
 
 		public string Get()
 		{
-			return Assembly.GetExecutingAssembly().FullName;
+			return Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
 		}
 
 		public void Post(HttpRequestMessage request, [FromBody]JObject json)

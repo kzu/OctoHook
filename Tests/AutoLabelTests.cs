@@ -103,6 +103,33 @@
 			await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
 		}
 
+		[Fact]
+		public async Task when_processing_issue_with_declared_minus_label_then_applies_it_with_plus()
+		{
+			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+			var repository = await github.Repository.Get("kzu", "sandbox");
+			var user = await github.User.Current();
+
+			var issue = await github.Issue.Create(
+				"kzu", "sandbox", new NewIssue("Auto-labeling to -qa"));
+
+			var labeler = new AutoLabel(github);
+
+			labeler.Process(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = issue,
+				Repository = repository,
+				Sender = user,
+			});
+
+			var updated = await github.Issue.Get("kzu", "sandbox", issue.Number);
+
+			Assert.Equal("Auto-labeling to", updated.Title);
+			Assert.True(updated.Labels.Any(l => l.Name == "-QA"));
+
+			await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
+		}
 
 		[Fact]
 		public async Task when_processing_issue_with_undeclared_plus_label_then_applies_it_without_plus()

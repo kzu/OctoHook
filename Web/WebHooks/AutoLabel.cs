@@ -10,14 +10,14 @@
 	using System.Threading.Tasks;
 
 	/// <summary>
-	/// Matches labels with the format "~[LABEL]" or "+[LABEL]" at the end 
+	/// Matches labels with the format "~[LABEL]", "-[LABEL]" or "+[LABEL]" at the end 
 	/// of the sissue title and auto-applies them.
 	/// </summary>
 	[Component]
 	public class AutoLabel : IWebHook<IssuesEvent>
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLink>();
-		static readonly Regex labelExpr = new Regex(@"(?<full>[~|+](?<bare>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		static readonly Regex labelExpr = new Regex(@"(?<full>[~|+|-](?<bare>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 		private IGitHubClient github;
 

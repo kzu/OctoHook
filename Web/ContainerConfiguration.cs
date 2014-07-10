@@ -20,7 +20,9 @@
 
 			var builder = new ContainerBuilder();
 			builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
-			builder.RegisterComponents(Assembly.GetExecutingAssembly());
+			builder.RegisterComponents(Assembly.GetExecutingAssembly())
+				.InstancePerRequest();
+
 			builder.Register<IGitHubClient>(c =>
 				new GitHubClient(
 					new ProductHeaderValue("OctoHook"),

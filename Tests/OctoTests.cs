@@ -9,6 +9,7 @@
     using Xunit;
 	using System.Linq;
 	using System.Threading.Tasks;
+	using System.Text.RegularExpressions;
 
     public class OctoTests
     {

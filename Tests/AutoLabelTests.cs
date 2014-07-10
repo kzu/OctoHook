@@ -29,7 +29,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to stories ~story"));
 
-			var labeler = new AutoLabel(github);
+			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -57,7 +57,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to ~foo in the middle doesn't work"));
 
-			var labeler = new AutoLabel(github);
+			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -85,7 +85,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to +doc"));
 
-			var labeler = new AutoLabel(github);
+			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -113,7 +113,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to -qa"));
 
-			var labeler = new AutoLabel(github);
+			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -142,7 +142,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to +foo"));
 
-			var labeler = new AutoLabel(github);
+			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
 
 			try
 			{
@@ -170,6 +170,35 @@
 				await github.Issue.Labels.Delete("kzu", "sandbox", "foo");
 			}
 			catch { }
+		}
+
+		[Fact]
+		public async Task when_processing_issue_with_colon_me_then_assigns_to_me()
+		{
+			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+
+			var repository = await github.Repository.Get("kzu", "sandbox");
+			var user = await github.User.Current();
+
+			var issue = await github.Issue.Create(
+				"kzu", "sandbox", new NewIssue("Auto-assigning to :me"));
+
+			var updater = new AutoUpdate(github, new AutoUpdater[] { new AutoAssign() });
+
+			updater.Process(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = issue,
+				Repository = repository,
+				Sender = user,
+			});
+
+			var updated = await github.Issue.Get("kzu", "sandbox", issue.Number);
+
+			Assert.Equal("Auto-assigning to", updated.Title);
+			Assert.Equal("kzu", updated.Assignee.Login);
+
+			await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
 		}
 	}
 }

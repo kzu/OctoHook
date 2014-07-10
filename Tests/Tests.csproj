@@ -95,9 +95,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoCloseTests.cs" />
-    <Compile Include="AutoLabelTests.cs" />
-    <Compile Include="CompositionTests.cs" />
+    <Compile Include="AutoUpdateTests.cs" />
     <Compile Include="AutoLinkTests.cs" />
+    <Compile Include="EndToEnd.cs" />
     <Compile Include="OctoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

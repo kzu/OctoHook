@@ -29,7 +29,7 @@
 					new InMemoryCredentialStore(
 						new Credentials(ConfigurationManager.AppSettings["GitHubToken"]))));
 
-			builder.Register<IServiceLocator>(c => new AutofacServiceLocator(c))
+			builder.Register<IServiceLocator>(c => new AutofacServiceLocator(c.Resolve<IComponentContext>()))
 				.InstancePerRequest();
 
 			builder.RegisterInstance(queue).SingleInstance();

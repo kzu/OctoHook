@@ -7,21 +7,17 @@
 	/// <summary>
 	/// Base class for auto-updates driven by issue title hints
 	/// </summary>
-	public abstract class AutoUpdater : Regex
+	public interface IAutoUpdater
 	{
-		protected AutoUpdater(string pattern, RegexOptions options)
-			: base(pattern, options)
-		{
-		}
-
 		/// <summary>
 		/// Initializes the updater for the current issue being processed.
 		/// </summary>
-		public abstract void Initialize(IssuesEvent issue);
+		void Initialize(IssuesEvent issue);
 
 		/// <summary>
-		/// Applies the update once the given match has already succeeded.
+		/// Applies the update to the issue.
 		/// </summary>
-		public abstract void Apply(Match match, IssueUpdate update);
+		/// <returns><see langword="true"/> if the update process was applied; <see langword="false"/> otherwise.</returns>
+		bool Apply(IssueUpdate update);
 	}
 }

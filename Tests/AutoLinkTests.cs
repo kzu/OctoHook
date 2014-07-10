@@ -63,32 +63,53 @@
 			var repository = await github.Repository.Get("kzu", "sandbox");
 			var user = await github.User.Current();
 
-			var story = await github.Issue.Create(
-				"kzu", "sandbox", new NewIssue("[hook] Auto-linking to stories")
-				{
-					Labels = { "Story" },
-				});
-			await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
+			var story = (await github.Search.SearchIssues(new SearchIssuesRequest("[hook]")
+			{
+				Labels = new[] { "Story" },
+				Repo = "kzu/sandbox",
+				Type = IssueTypeQualifier.Issue,
+				State = ItemState.Closed,
+			})).Items.FirstOrDefault();
+
+			if (story == null)
+			{
+				story = await github.Issue.Create(
+					"kzu", "sandbox", new NewIssue("[hook] Auto-linking to closed stories")
+					{
+						Labels = { "Story" },
+					});
+			}
+
+			if (story.State == ItemState.Open)
+				await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
 
 			var task = await github.Issue.Create(
-				"kzu", "sandbox", new NewIssue("[hook] Task about auto-linking")
+				"kzu", "sandbox", new NewIssue("[hook] Task about auto-linking to closed story")
 				{
 					Labels = { "Task" },
 				});
 
-			var linker = new AutoLink(github);
-
-			linker.Process(new Octokit.Events.IssuesEvent
+			try
 			{
-				Action = IssuesEvent.IssueAction.Opened,
-				Issue = task,
-				Repository = repository,
-				Sender = user,
-			});
+				var linker = new AutoLink(github);
 
-			var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
+				linker.Process(new Octokit.Events.IssuesEvent
+				{
+					Action = IssuesEvent.IssueAction.Opened,
+					Issue = task,
+					Repository = repository,
+					Sender = user,
+				});
 
-			Assert.True(updated.Body.Contains("#" + story.Number));
+				var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
+
+				Assert.True(updated.Body.Contains("#" + story.Number));
+			}
+			finally
+			{
+				github.Issue.Update("kzu", "sandbox", task.Number, new IssueUpdate { State = ItemState.Closed }).Wait();
+				github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed }).Wait();
+			}
 		}
 	}
 }

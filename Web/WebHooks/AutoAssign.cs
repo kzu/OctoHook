@@ -4,31 +4,32 @@
 	using Octokit;
 	using Octokit.Events;
 	using System;
-	using System.Collections.Generic;
-	using System.Linq;
 	using System.Text.RegularExpressions;
-	using System.Web;
 
 	[Component]
-	public class AutoAssign : AutoUpdater
+	public class AutoAssign : IAutoUpdater
 	{
-		private IssuesEvent issue;
+		static readonly Regex expression = new Regex(@":(?<user>\w+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		IssuesEvent issue;
 
-		public AutoAssign()
-			: base(@":(?<user>\w+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture)
+		public bool Apply(IssueUpdate update)
 		{
-		}
+			var match = expression.Match(update.Title);
+			if (!match.Success)
+				return false;
 
-		public override void Apply(Match match, IssueUpdate update)
-		{
 			var login = match.Groups["user"].Value;
 			if (string.Equals(login, "me", StringComparison.OrdinalIgnoreCase))
 				update.Assignee = issue.Sender.Login;
 			else
 				update.Assignee = login;
+
+			update.Title = update.Title.Replace(match.Value, "");
+
+			return true;
 		}
 
-		public override void Initialize(IssuesEvent issue)
+		public void Initialize(IssuesEvent issue)
 		{
 			this.issue = issue;
 		}

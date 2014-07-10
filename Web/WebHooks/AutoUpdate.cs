@@ -21,12 +21,12 @@
 		static readonly ITracer tracer = Tracer.Get<AutoLink>();
 
 		IGitHubClient github;
-		IEnumerable<AutoUpdater> updaters;
+		IEnumerable<IAutoUpdater> updaters;
 
-		public AutoUpdate(IGitHubClient github, IEnumerable<AutoUpdater> updaters)
+		public AutoUpdate(IGitHubClient github, IEnumerable<IAutoUpdater> updaters)
 		{
 			this.github = github;
-			this.updaters = updaters;			
+			this.updaters = updaters;
 		}
 
 		public string Describe(IssuesEvent @event)
@@ -44,16 +44,7 @@
 
 		private async Task ProcessAsync(IssuesEvent issue)
 		{
-			var issueTitle = issue.Issue.Title.Trim();
-			if (!updaters.Any(r => r.IsMatch(issueTitle)))
-			{
-				tracer.Verbose("Skipping issue {0}/{1}#{2} without auto-updates.",
-					issue.Repository.Owner.Login,
-					issue.Repository.Name,
-					issue.Issue.Number,
-					issue.Issue.Title);
-				return;
-			}
+			var update = new IssueUpdate { Title = issue.Issue.Title.Trim() };
 
 			// Initialize updaters for the current issue request
 			foreach (var updater in updaters)
@@ -61,37 +52,37 @@
 				updater.Initialize(issue);
 			}
 
-			var update = new IssueUpdate { Title = issueTitle };
+			var updated = false;
 
-			var match = updaters
-				.Select(r => new { Updater = r, Match = r.Match(update.Title) })
-				.FirstOrDefault(m => m.Match.Success);
-
-			while (match != null)
+			while (updaters.Any(updater => updater.Apply(update)))
 			{
-				match.Updater.Apply(match.Match, update);
-
-				// Remove it from the title and try next match.
-				update.Title = update.Title.Replace(match.Match.Value, "").Trim();
-
-				match = updaters
-					.Select(r => new { Updater = r, Match = r.Match(update.Title) })
-					.FirstOrDefault(m => m.Match.Success);
+				update.Title = update.Title.Trim();
+				updated = true;
 			}
 
-			await github.Issue.Update(issue.Repository.Owner.Login, issue.Repository.Name, issue.Issue.Number, update);
+			if (updated)
+			{
+				await github.Issue.Update(issue.Repository.Owner.Login, issue.Repository.Name, issue.Issue.Number, update);
 
-			var updates = new List<string>();
-			if (update.Labels.Any())
-				updates.Add(" labels [" + string.Join(", ", update.Labels) + "]");
-			if (!string.IsNullOrEmpty(string.Join(", ", update.Labels)))
-				updates.Add(" assignee '" + update.Assignee + "'");
+				var updates = new List<string>();
+				if (update.Labels.Any())
+					updates.Add(" labels [" + string.Join(", ", update.Labels) + "]");
+				if (!string.IsNullOrEmpty(update.Assignee))
+					updates.Add(" assignee '" + update.Assignee + "'");
 
-			tracer.Info(@"Updated issue {0}/{1}#{2} with {3}.",
-				issue.Repository.Owner.Login,
-				issue.Repository.Name,
-				issue.Issue.Number, 
-				string.Join(", ", updates));
+				tracer.Info(@"Updated issue {0}/{1}#{2} with{3}.",
+					issue.Repository.Owner.Login,
+					issue.Repository.Name,
+					issue.Issue.Number,
+					string.Join(", ", updates));
+			}
+			else
+			{
+				tracer.Verbose(@"Skipped issue {0}/{1}#{2} since it had no applicable auto-updates.",
+					issue.Repository.Owner.Login,
+					issue.Repository.Name,
+					issue.Issue.Number);
+			}
 		}
 	}
 }

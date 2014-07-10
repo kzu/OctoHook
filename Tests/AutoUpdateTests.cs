@@ -15,7 +15,7 @@
 	using System.Threading.Tasks;
 	using Xunit;
 
-	public class AutoLabelTests
+	public class AutoUpdateTests
 	{
 		static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 
@@ -29,7 +29,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to stories ~story"));
 
-			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
+			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -57,7 +57,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to ~foo in the middle doesn't work"));
 
-			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
+			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -69,7 +69,7 @@
 
 			var updated = await github.Issue.Get("kzu", "sandbox", issue.Number);
 
-			Assert.Equal("Auto-labeling to stories", updated.Title);
+			Assert.Equal("Auto-labeling to ~foo in the middle doesn't work", updated.Title);
 			Assert.False(updated.Labels.Any(l => l.Name == "foo"));
 
 			await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
@@ -85,7 +85,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to +doc"));
 
-			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
+			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -113,7 +113,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to -qa"));
 
-			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
+			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
 
 			labeler.Process(new Octokit.Events.IssuesEvent
 			{
@@ -142,7 +142,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to +foo"));
 
-			var labeler = new AutoUpdate(github, new AutoUpdater[] { new AutoLabel(github) });
+			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
 
 			try
 			{
@@ -183,7 +183,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-assigning to :me"));
 
-			var updater = new AutoUpdate(github, new AutoUpdater[] { new AutoAssign() });
+			var updater = new AutoUpdate(github, new IAutoUpdater[] { new AutoAssign() });
 
 			updater.Process(new Octokit.Events.IssuesEvent
 			{

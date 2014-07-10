@@ -61,7 +61,8 @@
 				{ 
 					new PushEvent.CommitInfo
 					{
-						Message = "Closes #" + task.Number
+						Message = "Closes #" + task.Number,
+						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 					},
 				},
 				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
@@ -98,11 +99,13 @@
 				{ 
 					new PushEvent.CommitInfo
 					{
-						Message = "Closes #" + task1.Number
+						Message = "Closes #" + task1.Number,
+						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 					},
 					new PushEvent.CommitInfo
 					{
-						Message = "Closes #" + task2.Number
+						Message = "Closes #" + task2.Number, 
+						Sha = "a04dbe98b61ca89cd026b5773c9026bc4569854d",
 					},
 				},
 				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
@@ -141,7 +144,8 @@
 				{ 
 					new PushEvent.CommitInfo
 					{
-						Message = "Closes #" + task1.Number + " and #" + task2.Number
+						Message = "Closes #" + task1.Number + " and #" + task2.Number,
+						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 					},
 				},
 				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)

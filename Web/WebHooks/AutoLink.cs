@@ -15,6 +15,7 @@
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLink>();
 		static readonly Regex storyPrefixExpr = new Regex(@"\[[^\]]+\]", RegexOptions.Compiled);
+		static readonly Regex issueLink = new Regex(@"(?<=\#)\d+", RegexOptions.Compiled);
 
 		private IGitHubClient github;
 
@@ -25,9 +26,9 @@
 
 		public string Describe(IssuesEvent @event)
 		{
-			return string.Format("AutoLink https://github.com/{0}/{1}/issues/{2}", 
-				@event.Repository.Owner.Login, 
-				@event.Repository.Name, 
+			return string.Format("AutoLink https://github.com/{0}/{1}/issues/{2}",
+				@event.Repository.Owner.Login,
+				@event.Repository.Name,
 				@event.Issue.Number);
 		}
 
@@ -41,10 +42,10 @@
 			var storyPrefix = storyPrefixExpr.Match(@event.Issue.Title);
 			if (!storyPrefix.Success)
 			{
-				tracer.Verbose("Skipping issue {0}/{1}#{2} without a story prefix: '{3}'.", 
-					@event.Repository.Owner.Login, 
+				tracer.Verbose("Skipping issue {0}/{1}#{2} without a story prefix: '{3}'.",
+					@event.Repository.Owner.Login,
 					@event.Repository.Name,
-					@event.Issue.Number, 
+					@event.Issue.Number,
 					@event.Issue.Title);
 				return;
 			}
@@ -53,53 +54,63 @@
 			if (@event.Issue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
 				return;
 
+			// Skip the issue if it already has a story link
+			// Need to retrieve the full issue, since the event only contains the title
+			var issue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number);
+			foreach (var number in issueLink.Matches(issue.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
+			{
+				try
+				{
+					var linkedIssue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, number);
+					if (linkedIssue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
+					{
+						tracer.Info("Skipping issue {0}/{1}#{2} as it already contains story link to #{3}.",
+							@event.Repository.Owner.Login,
+							@event.Repository.Name,
+							@event.Issue.Number,
+							number);
+						return;
+					}
+				}
+				catch (NotFoundException)
+				{
+					// It may be a link to a bug/issue in another system.
+				}
+			}
+
 			// Find the story with the same prefix.
 			var repository = @event.Repository.Owner.Login + "/" + @event.Repository.Name;
 			var story = await FindStoryAsync(repository, storyPrefix.Value);
 			if (story == null)
 			{
 				tracer.Warn("Issue {0}/{1}#{2} has story prefix '{3}' but no matching issue with the label 'Story' or 'story' was found with such prefix.",
-					@event.Repository.Owner.Login, 
+					@event.Repository.Owner.Login,
 					@event.Repository.Name,
-					@event.Issue.Number, 
+					@event.Issue.Number,
 					storyPrefix.Value);
 				return;
 			}
 
-			// See if story link exists in the issue description.
-			// Need to retrieve the full issue, since the event only contains the title
-			var issue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number);
-			if (issue.Body == null || !issue.Body.Contains("#" + story.Number))
+			var update = new IssueUpdate
 			{
-				var update = new IssueUpdate
-				{
-					Body = (issue.Body == null ? "" : issue.Body + @"
+				Body = (issue.Body == null ? "" : issue.Body + @"
 
 ")
-						+ "Story #" + story.Number,
-					State = issue.State,
-				};
+					+ "Story #" + story.Number,
+				State = issue.State,
+			};
 
-				await github.Issue.Update(
-					@event.Repository.Owner.Login,
-					@event.Repository.Name,
-					issue.Number,
-					update);
+			await github.Issue.Update(
+				@event.Repository.Owner.Login,
+				@event.Repository.Name,
+				issue.Number,
+				update);
 
-				tracer.Info("Established new story link between issue {0}/{1}#{2} and story #{3}.", 
-					@event.Repository.Owner.Login, 
-					@event.Repository.Name,
-					@event.Issue.Number, 
-					story.Number);
-			}
-			else
-			{
-				tracer.Info("Skipping issue {0}/{1}#{2} as it already contains story link to #{3}.", 
-					@event.Repository.Owner.Login, 
-					@event.Repository.Name,
-					@event.Issue.Number, 
-					story.Number);
-			}
+			tracer.Info("Established new story link between issue {0}/{1}#{2} and story #{3}.",
+				@event.Repository.Owner.Login,
+				@event.Repository.Name,
+				@event.Issue.Number,
+				story.Number);
 		}
 
 		private async Task<Issue> FindStoryAsync(string repository, string query)

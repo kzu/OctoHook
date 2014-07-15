@@ -1,5 +1,6 @@
 ﻿namespace Tests
 {
+	using Moq;
 	using Newtonsoft.Json.Linq;
 	using OctoHook.WebHooks;
 	using Octokit;
@@ -110,6 +111,120 @@
 				github.Issue.Update("kzu", "sandbox", task.Number, new IssueUpdate { State = ItemState.Closed }).Wait();
 				github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed }).Wait();
 			}
+		}
+
+		[Fact]
+		public void when_processing_issue_with_existing_story_link_then_skips_processing()
+		{
+			var github = new Mock<IGitHubClient>(MockBehavior.Strict);
+			var task = new Issue
+			{
+				Number = 1,
+				Title = "[ui] Issue with story prefix",
+				Body = "An issue with an existing story #2 link",
+				Labels = new List<Label>
+				{
+					new Label { Name = "Task" }
+				}
+			};
+
+			github.Setup(x => x.Issue.Get("kzu", "repo", 1))
+				.Returns(Task.FromResult(task));
+			github.Setup(x => x.Issue.Get("kzu", "repo", 2))
+				.Returns(Task.FromResult(new Issue
+				{
+					Number = 2,
+					Labels = new List<Label>
+					{
+						new Label { Name = "Story" }
+					}
+				}));
+
+			var linker = new AutoLink(github.Object);
+
+			linker.Process(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = task,
+				Repository = new Repository
+				{
+					Owner = new User
+					{
+						Login = "kzu"
+					},
+					Name = "repo"
+				},
+				Sender = new User
+				{
+				},
+			});
+
+			github.Verify(x => x.Issue.Get("kzu", "repo", 2));
+		}
+
+		[Fact]
+		public void when_processing_issue_other_links_then_updates_with_story_link_from_prefix()
+		{
+			var github = new Mock<IGitHubClient>(MockBehavior.Strict);
+			var task = new Issue
+			{
+				Number = 1,
+				Title = "[ui] Issue with story prefix",
+				Body = "An issue with an existing issue #2 link",
+				Labels = new List<Label>
+				{
+					new Label { Name = "Task" }
+				}
+			};
+
+			github.Setup(x => x.Issue.Get("kzu", "repo", 1))
+				.Returns(Task.FromResult(task));
+			github.Setup(x => x.Issue.Get("kzu", "repo", 2))
+				.Returns(Task.FromResult(new Issue
+				{
+					Number = 2,
+					Labels = new List<Label>()
+				}));
+
+			github.Setup(x => x.Search.SearchIssues(It.IsAny<SearchIssuesRequest>()))
+				.Returns(Task.FromResult<SearchIssuesResult>(new SearchIssuesResult
+				{
+					Items = new List<Issue>
+					{
+						new Issue
+						{
+							Number = 3,
+							Title = "[ui] Story"
+						}
+					}
+				}));
+
+
+			github.Setup(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u => 
+				u.Body.Contains("#3"))))
+				.Returns(Task.FromResult(task));
+
+			var linker = new AutoLink(github.Object);
+
+			linker.Process(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = task,
+				Repository = new Repository
+				{
+					Owner = new User
+					{
+						Login = "kzu"
+					},
+					Name = "repo"
+				},
+				Sender = new User
+				{
+				},
+			});
+
+			github.Verify(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u => 
+				u.Body.Contains("#3"))));
 		}
 	}
 }

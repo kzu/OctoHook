@@ -106,9 +106,9 @@
 		{
 			var story = await FindIssueAsync(repository, query, ItemState.Open, "Story");
 			if (story == null)
-				story = await FindIssueAsync(repository, query, ItemState.Closed, "Story");
-			if (story == null)
 				story = await FindIssueAsync(repository, query, ItemState.Open, "story");
+			if (story == null)
+				story = await FindIssueAsync(repository, query, ItemState.Closed, "Story");
 			if (story == null)
 				story = await FindIssueAsync(repository, query, ItemState.Closed, "story");
 

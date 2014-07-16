@@ -137,6 +137,8 @@
 				Repo = repository,
 				Type = IssueTypeQualifier.Issue,
 				State = state,
+				// Always point to newest found first.
+				Order = SortDirection.Descending,
 			});
 
 			tracer.Verbose("Results: {0}.", stories.TotalCount);

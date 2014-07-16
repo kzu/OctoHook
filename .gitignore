@@ -174,3 +174,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 /Tests/Token
 /Console/OctoHook.bat
+/Tests/Fixups.cs

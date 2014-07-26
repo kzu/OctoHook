@@ -12,6 +12,7 @@
 	using Octokit.Events;
 	using Newtonsoft.Json;
 	using OctoHook.Diagnostics;
+	using System;
 
 	public class GitHubController : ApiController
 	{
@@ -42,16 +43,28 @@
 
 			tracer.Verbose("Received GitHub callback for event of type '{0}'.", type);
 
-			switch (type)
+			try
 			{
-				case "issues":
-					Process<IssuesEvent>(JsonConvert.DeserializeObject<IssuesEvent>(json.ToString()));
-					break;
-				case "push":
-					Process<PushEvent>(JsonConvert.DeserializeObject<PushEvent>(json.ToString()));
-					break;
-				default:
-					break;
+				switch (type)
+				{
+					case "issues":
+						Process<IssuesEvent>(JsonConvert.DeserializeObject<IssuesEvent>(json.ToString()));
+						break;
+					case "push":
+						Process<PushEvent>(JsonConvert.DeserializeObject<PushEvent>(json.ToString()));
+						break;
+					default:
+						break;
+				}
+			}
+			catch (Exception e)
+			{
+				tracer.Error(@"Failed to process request: {0}.
+--- Exception ---
+{1}
+--- Request ---
+{2}", e.Message, e, json.ToString(Formatting.Indented));
+				throw;
 			}
 		}
 

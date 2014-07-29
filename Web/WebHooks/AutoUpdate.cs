@@ -15,6 +15,12 @@
 	/// Matches labels with the format "~[LABEL]", "-[LABEL]" or "+[LABEL]" at the end 
 	/// of the sissue title and auto-applies them.
 	/// </summary>
+	/// <devdoc>
+	/// See <see cref="IAutoUpdater"/> on why we need this abstraction.
+	/// We keep applying updaters as long as their <see cref="IAutoUpdater.Apply"/>
+	/// returns true, telling us that a change might have been applied to the issue 
+	/// title.
+	/// </devdoc>
 	[Component]
 	public class AutoUpdate : IWebHook<IssuesEvent>
 	{

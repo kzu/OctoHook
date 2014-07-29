@@ -177,7 +177,7 @@
     <Compile Include="WebHooks\AutoLabel.cs" />
     <Compile Include="WebHooks\AutoUpdate.cs" />
     <Compile Include="WebHooks\AutoLink.cs" />
-    <Compile Include="WebHooks\AutoUpdater.cs" />
+    <Compile Include="WebHooks\IAutoUpdater.cs" />
     <Compile Include="WorkQueue.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +190,7 @@
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

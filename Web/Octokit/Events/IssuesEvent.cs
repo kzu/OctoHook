@@ -14,6 +14,10 @@
             Opened,
             Closed,
             Reopened,
+			Assigned,
+			Unassigned,
+			Labeled,
+			Unlabeled,
         }
 
         public IssueAction Action { get; set; }

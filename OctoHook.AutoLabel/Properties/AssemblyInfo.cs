@@ -3,6 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("OctoHook.AutoLabel")]
-[assembly: AssemblyProduct("OctoHook")]
-[assembly: AssemblyCompany("Daniel Cazzulino")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyDescription("Automatically apply labels to issues with title formatted with one or more '+[label]', '~[label]' or '-[label]'.")]
+// TODO: wiki page for nugets?
+[assembly: AssemblyMetadata("projectUrl", "https://github.com/kzu/OctoHook/wiki")]

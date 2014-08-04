@@ -3,6 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("OctoHook.AutoClose")]
-[assembly: AssemblyProduct("OctoHook")]
-[assembly: AssemblyCompany("Daniel Cazzulino")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyDescription("Automatically close issues via standard GitHub mechanism (i.e. 'fixes #123'), regardless of the commit branch.")]
+// TODO: wiki page for nugets?
+[assembly: AssemblyMetadata("projectUrl", "https://github.com/kzu/OctoHook/wiki")]

@@ -176,3 +176,4 @@ FakesAssemblies/
 /Console/OctoHook.bat
 /Tests/Fixups.cs
 /NuGet.exe
+*.nupkg

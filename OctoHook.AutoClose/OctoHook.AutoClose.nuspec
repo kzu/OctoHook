@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>$id$</id>
+		<version>$version$</version>
+		<title>$title$</title>
+		<description>$description$</description>
+		<authors>$author$</authors>
+		<owners>$owner$</owners>
+		<licenseUrl>$licenseUrl$</licenseUrl>
+		<projectUrl>$projectUrl$</projectUrl>
+		<iconUrl>$iconUrl$</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<releaseNotes>
+v0.1
+
+- Initial support for OctoHook plugins via NuGet
+.</releaseNotes>
+		<copyright>$copyright$</copyright>
+		<tags>$tags$</tags>
+	</metadata>
+</package>

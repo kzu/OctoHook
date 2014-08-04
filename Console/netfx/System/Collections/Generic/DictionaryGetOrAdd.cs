@@ -38,8 +38,17 @@ internal static partial class DictionaryGetOrAdd
 		var value = default(TValue);
 		if (!dictionary.TryGetValue(key, out value))
 		{
-			value = valueFactory(key);
-			dictionary[key] = value;
+			// ConcurrentDictionary does a bucket-level lock, which is more efficient.
+			// We don't have access to the inner buckets, so we have to look the entire 
+			// dictionary.
+			lock (dictionary)
+			{
+				if (!dictionary.TryGetValue(key, out value))
+				{
+					value = valueFactory(key);
+					dictionary[key] = value;
+				}
+			}
 		}
 
 		return value;

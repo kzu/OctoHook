@@ -18,7 +18,6 @@
 		<PackageProject Include="**\*.csproj">
 			<NuSpec>$(MSBuildThisFileDirectory)%(RecursiveDir)%(Filename).nuspec</NuSpec>
 		</PackageProject>
-		
 		<PackageConfig Include="**\packages.config" />
 	</ItemGroup>
 
@@ -26,7 +25,6 @@
 		<ItemGroup>
 			<CleanFileList Include="*.nupkg"/>
 		</ItemGroup>
-		
 		<MSBuild
 			Projects="@(PackageProject)"
 			Targets="Clean"
@@ -35,23 +33,17 @@
 	</Target>
 
 	<Target Name="Build" DependsOnTargets="Restore">
-
-		<Message Importance="high" 
-				 Text="Building package %(PackageProject.NuSpec)."
-				 Condition="Exists('%(NuSpec)')"/>
-
-		<Exec Command="$(NuGetCommand) pack %(PackageProject.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet" />
-
+		<Exec Command="$(NuGetCommand) pack %(PackageProject.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet"
+			  Condition="Exists('%(NuSpec)')" />
 	</Target>
 
+	<Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+	
 	<Target Name="Push" DependsOnTargets="Build">
-
 		<ItemGroup>
 			<PackageFile Include="*.nupkg" Exclude="*.symbols*.nupkg" />
-		</ItemGroup>
-		
+		</ItemGroup>		
 		<Exec Command="$(NuGetCommand) push %(PackageFile.Identity) -NonInteractive" />
-
 	</Target>
 
 	<Target Name="Restore" Condition="'@(PackageConfig)' != ''">

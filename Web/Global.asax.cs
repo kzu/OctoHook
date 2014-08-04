@@ -34,18 +34,27 @@
 
 			var tracer = Tracer.Get<WebApiApplication>();
 
-			var assemblies = new List<Assembly>();
+			var assemblies = new HashSet<Assembly>();
+			assemblies.Add(Assembly.GetExecutingAssembly());
 			foreach (var file in Directory.EnumerateFiles(Server.MapPath("bin"), "*.dll"))
 			{
 				tracer.Verbose("Loading {0} for composition.", Path.GetFileName(file));
 				try
 				{
-					assemblies.Add(Assembly.LoadFrom(file));
+					var name = AssemblyName.GetAssemblyName(file);
+
+					try
+					{
+						var asm = Assembly.Load(name);
+						if (!assemblies.Contains(asm))
+							assemblies.Add(asm);
+					}
+					catch (Exception ex)
+					{
+						tracer.Warn(ex, "Failed to load {0} for composition.", Path.GetFileName(file));
+					}
 				}
-				catch (Exception ex)
-				{
-					tracer.Warn(ex, "Failed to load {0} for composition.", Path.GetFileName(file));
-				}
+				catch { } // AssemblyName loading could fail for non-managed assemblies
 			}
 
 			GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(

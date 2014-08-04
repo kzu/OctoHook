@@ -182,10 +182,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\OctoHook.AutoAssign\OctoHook.AutoAssign.csproj">
       <Project>{04e38f78-5ba0-4fe4-b3f6-a1a4f34e641c}</Project>

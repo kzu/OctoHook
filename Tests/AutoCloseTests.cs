@@ -2,7 +2,6 @@
 {
 	using Newtonsoft.Json;
 	using OctoHook;
-	using OctoHook.WebHooks;
 	using Octokit;
 	using Octokit.Events;
 	using Octokit.Internal;

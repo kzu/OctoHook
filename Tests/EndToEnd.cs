@@ -32,7 +32,13 @@
 			work.Setup(x => x.Queue(It.IsAny<Func<Task>>()))
 				.Callback<Func<Task>>(a => a().Wait());
 
-			var container = ContainerConfiguration.Configure(work.Object);
+			var container = ContainerConfiguration.Configure(
+				typeof(AutoAssign).Assembly, 
+				typeof(AutoClose).Assembly, 
+				typeof(AutoLabel).Assembly, 
+				typeof(AutoLink).Assembly, 
+				typeof(OctoIssuerJob).Assembly
+			);
 			var lifetime = container.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag);
 
 			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));

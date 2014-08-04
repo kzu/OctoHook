@@ -16,17 +16,12 @@
 
 	public static class ContainerConfiguration
 	{
-		public static IContainer Configure(IJobQueue queue)
+		public static IContainer Configure(IEnumerable<Assembly> assemblies)
 		{
-			return Configure(queue, typeof(ContainerConfiguration).Assembly);
+			return Configure(assemblies.ToArray());
 		}
 
-		public static IContainer Configure(IJobQueue queue, IEnumerable<Assembly> assemblies)
-		{
-			return Configure(queue, assemblies.ToArray());
-		}
-
-		public static IContainer Configure(IJobQueue queue, params Assembly[] assemblies)
+		public static IContainer Configure(params Assembly[] assemblies)
 		{
 			IContainer container = null;
 

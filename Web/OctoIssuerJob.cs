@@ -1,4 +1,4 @@
-﻿namespace OctoHook.WebHooks
+﻿namespace OctoHook
 {
 	using Newtonsoft.Json;
 	using OctoHook.CommonComposition;

@@ -49,7 +49,7 @@
 			}
 
 			GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(
-				ContainerConfiguration.Configure(new JobQueue(), assemblies));
+				ContainerConfiguration.Configure(assemblies));
 
 			tracer.Info("{0} Version {1}",
 				Assembly.GetExecutingAssembly().GetName().Name,

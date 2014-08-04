@@ -3,7 +3,6 @@
 	using Moq;
 	using Newtonsoft.Json.Linq;
 	using OctoHook;
-	using OctoHook.WebHooks;
 	using Octokit;
 	using Octokit.Events;
 	using Octokit.Internal;

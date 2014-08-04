@@ -9,16 +9,16 @@
 	using Octokit;
 	using Octokit.Internal;
 	using System;
+	using System.Collections.Generic;
 	using System.Configuration;
 	using System.Diagnostics;
+	using System.IO;
 	using System.Reflection;
 	using System.Web;
 	using System.Web.Http;
 
 	public class WebApiApplication : HttpApplication
 	{
-		static WorkQueue queue = new WorkQueue();
-
 		protected void Application_Start()
 		{
 			var manager = new TracerManager();
@@ -32,10 +32,26 @@
 
 			Tracer.Initialize(manager);
 
-			GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(
-				ContainerConfiguration.Configure(queue));
+			var tracer = Tracer.Get<WebApiApplication>();
 
-			Tracer.Get<WebApiApplication>().Info("{0} Version {1}",
+			var assemblies = new List<Assembly>();
+			foreach (var file in Directory.EnumerateFiles(Server.MapPath("bin"), "*.dll"))
+			{
+				tracer.Verbose("Loading {0} for composition.", Path.GetFileName(file));
+				try
+				{
+					assemblies.Add(Assembly.LoadFrom(file));
+				}
+				catch (Exception ex)
+				{
+					tracer.Warn(ex, "Failed to load {0} for composition.", Path.GetFileName(file));
+				}
+			}
+
+			GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(
+				ContainerConfiguration.Configure(new JobQueue(), assemblies));
+
+			tracer.Info("{0} Version {1}",
 				Assembly.GetExecutingAssembly().GetName().Name,
 				Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
 

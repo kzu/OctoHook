@@ -110,6 +110,26 @@
     <None Include="Token.sample" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OctoHook.AutoAssign\OctoHook.AutoAssign.csproj">
+      <Project>{04e38f78-5ba0-4fe4-b3f6-a1a4f34e641c}</Project>
+      <Name>OctoHook.AutoAssign</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OctoHook.AutoClose\OctoHook.AutoClose.csproj">
+      <Project>{ab10e303-75a1-40d2-81eb-06675d2e327b}</Project>
+      <Name>OctoHook.AutoClose</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OctoHook.AutoLabel\OctoHook.AutoLabel.csproj">
+      <Project>{16dd79b4-63cc-4600-af06-a648830d394a}</Project>
+      <Name>OctoHook.AutoLabel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OctoHook.AutoLink\OctoHook.AutoLink.csproj">
+      <Project>{50961b30-3e7c-4824-92cb-26a4b1f295e0}</Project>
+      <Name>OctoHook.AutoLink</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OctoHook\OctoHook.csproj">
+      <Project>{85896b11-3552-4152-8296-31fb43f5afcd}</Project>
+      <Name>OctoHook</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Web\Web.csproj">
       <Project>{a1490934-3903-49ea-9d8f-8729d54d7002}</Project>
       <Name>Web</Name>

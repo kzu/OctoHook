@@ -1,24 +1,25 @@
 ﻿namespace Tests
 {
+    using Autofac;
+    using Autofac.Builder;
+    using Autofac.Core;
+    using Autofac.Features.Scanning;
 	using Autofac.Core.Lifetime;
 	using Moq;
-	using OctoHook;
-	using Autofac;
-	using System;
-	using System.Collections.Generic;
+	using Newtonsoft.Json;
 	using System.Linq;
-	using System.Text;
+	using Newtonsoft.Json.Linq;
+	using OctoHook;
+	using OctoHook.Controllers;
+	using OctoHook.CommonComposition;
+	using Octokit;
+	using Octokit.Events;
+	using Octokit.Internal;
+	using System;
+	using System.IO;
+	using System.Net.Http;
 	using System.Threading.Tasks;
 	using Xunit;
-	using OctoHook.Controllers;
-	using Octokit;
-	using System.IO;
-	using Octokit.Internal;
-	using Newtonsoft.Json;
-	using Octokit.Events;
-	using System.Net.Http;
-	using Newtonsoft.Json.Linq;
-	using OctoHook.WebHooks;
 
 	public class EndToEnd
 	{
@@ -27,9 +28,9 @@
 		[Fact]
 		public async Task when_processing_issues_request_then_succeeds()
 		{
-			var work = new Mock<IWorkQueue>();
-			work.Setup(x => x.Queue(It.IsAny<Action>(), It.IsAny<string>()))
-				.Callback<Action, string>((a, s) => a());
+			var work = new Mock<IJobQueue>();
+			work.Setup(x => x.Queue(It.IsAny<Func<Task>>()))
+				.Callback<Func<Task>>(a => a().Wait());
 
 			var container = ContainerConfiguration.Configure(work.Object);
 			var lifetime = container.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag);
@@ -59,7 +60,23 @@
 
 			var controller = lifetime.Resolve<GitHubController>();
 			controller.Post(request, JObject.Parse(json));
-
 		}
+
+		//[Fact]
+		//public void when_processing_non_singletons_then_can_set_as_instance_per_request()
+		//{
+		//	var builder = new ContainerBuilder();
+
+		//}
+
+		[Component(IsSingleton = true)]
+		public class PerApp : IApp { }
+
+		public interface IApp { }
+
+		[Component]
+		public class PerRequest : IJob { }
+
+		public interface IJob { }
 	}
 }

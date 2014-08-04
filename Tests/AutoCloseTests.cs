@@ -1,6 +1,7 @@
 ﻿namespace Tests
 {
 	using Newtonsoft.Json;
+	using OctoHook;
 	using OctoHook.WebHooks;
 	using Octokit;
 	using Octokit.Events;
@@ -55,7 +56,7 @@
 
 			var hook = new AutoClose(github);
 
-			hook.Process(new PushEvent
+			await hook.ProcessAsync(new PushEvent
 			{
 				Commits = new[]
 				{ 
@@ -64,6 +65,11 @@
 						Message = "Closes #" + task.Number,
 						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 					},
+				},
+				HeadCommit = new PushEvent.CommitInfo
+				{
+					Message = "Closes #" + task.Number,
+					Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 				},
 				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
 			});
@@ -93,7 +99,7 @@
 
 			var hook = new AutoClose(github);
 
-			hook.Process(new PushEvent
+			await hook.ProcessAsync(new PushEvent
 			{
 				Commits = new[]
 				{ 
@@ -107,6 +113,11 @@
 						Message = "Closes #" + task2.Number, 
 						Sha = "a04dbe98b61ca89cd026b5773c9026bc4569854d",
 					},
+				},
+				HeadCommit = new PushEvent.CommitInfo
+				{
+					Message = "Closes #" + task1.Number,
+					Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 				},
 				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
 			});
@@ -138,7 +149,7 @@
 
 			var hook = new AutoClose(github);
 
-			hook.Process(new PushEvent
+			await hook.ProcessAsync(new PushEvent
 			{
 				Commits = new[]
 				{ 
@@ -147,6 +158,11 @@
 						Message = "Closes #" + task1.Number + " and #" + task2.Number,
 						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 					},
+				},
+				HeadCommit = new PushEvent.CommitInfo
+				{
+					Message = "Closes #" + task1.Number + " and #" + task2.Number,
+					Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
 				},
 				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
 			});
@@ -166,7 +182,7 @@
 			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
 			var hook = new AutoClose(github);
 
-			hook.Process(@event);
+			await hook.ProcessAsync(@event);
 
 			try
 			{

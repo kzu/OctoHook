@@ -1,4 +1,4 @@
-﻿namespace OctoHook.WebHooks
+﻿namespace OctoHook
 {
 	using Octokit;
 	using Octokit.Events;
@@ -11,7 +11,7 @@
 	using OctoHook.Diagnostics;
 
 	[Component]
-	public class AutoLink : IWebHook<IssuesEvent>
+	public class AutoLink : IOctoHook<IssuesEvent>
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLink>();
 		static readonly Regex storyPrefixExpr = new Regex(@"\[[^\]]+\]", RegexOptions.Compiled);
@@ -24,16 +24,13 @@
 			this.github = github;
 		}
 
-		public string Describe(IssuesEvent @event)
+		public void Process(IssuesEvent @event)
 		{
-			return string.Format("AutoLink https://github.com/{0}/{1}/issues/{2}",
+			tracer.Verbose("AutoLink::Process https://github.com/{0}/{1}/issues/{2}",
 				@event.Repository.Owner.Login,
 				@event.Repository.Name,
 				@event.Issue.Number);
-		}
 
-		public void Process(IssuesEvent @event)
-		{
 			ProcessAsync(@event).Wait();
 		}
 
@@ -57,24 +54,27 @@
 			// Skip the issue if it already has a story link
 			// Need to retrieve the full issue, since the event only contains the title
 			var issue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number);
-			foreach (var number in issueLink.Matches(issue.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
+			if (!string.IsNullOrEmpty(issue.Body))
 			{
-				try
+				foreach (var number in issueLink.Matches(issue.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
 				{
-					var linkedIssue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, number);
-					if (linkedIssue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
+					try
 					{
-						tracer.Info("Skipping issue {0}/{1}#{2} as it already contains story link to #{3}.",
-							@event.Repository.Owner.Login,
-							@event.Repository.Name,
-							@event.Issue.Number,
-							number);
-						return;
+						var linkedIssue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, number);
+						if (linkedIssue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
+						{
+							tracer.Info("Skipping issue {0}/{1}#{2} as it already contains story link to #{3}.",
+								@event.Repository.Owner.Login,
+								@event.Repository.Name,
+								@event.Issue.Number,
+								number);
+							return;
+						}
 					}
-				}
-				catch (NotFoundException)
-				{
-					// It may be a link to a bug/issue in another system.
+					catch (NotFoundException)
+					{
+						// It may be a link to a bug/issue in another system.
+					}
 				}
 			}
 

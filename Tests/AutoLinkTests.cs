@@ -2,6 +2,7 @@
 {
 	using Moq;
 	using Newtonsoft.Json.Linq;
+	using OctoHook;
 	using OctoHook.WebHooks;
 	using Octokit;
 	using Octokit.Events;
@@ -63,32 +64,40 @@
 			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
 			var repository = await github.Repository.Get("kzu", "sandbox");
 			var user = await github.User.Current();
+			var prefix = "[" + Guid.NewGuid() + "]";
 
-			var story = (await github.Search.SearchIssues(new SearchIssuesRequest("[hook]")
-			{
-				Labels = new[] { "Story" },
-				Repo = "kzu/sandbox",
-				Type = IssueTypeQualifier.Issue,
-				State = ItemState.Closed,
-			})).Items.FirstOrDefault();
+			var story = await github.Issue.Create("kzu", "sandbox",
+				new NewIssue(prefix + " Auto-linking to closed stories")
+				{
+					Labels = { "Story" },
+				});
 
-			if (story == null)
-			{
-				story = await github.Issue.Create(
-					"kzu", "sandbox", new NewIssue("[hook] Auto-linking to closed stories")
-					{
-						Labels = { "Story" },
-					});
-			}
-
-			if (story.State == ItemState.Open)
-				await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
+			await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
 
 			var task = await github.Issue.Create(
-				"kzu", "sandbox", new NewIssue("[hook] Task about auto-linking to closed story")
+				"kzu", "sandbox", new NewIssue(prefix + " Task about auto-linking to closed story")
 				{
 					Labels = { "Task" },
 				});
+
+			var found = false;
+			while (!found)
+			{
+				var stories = await github.Search.SearchIssues(new SearchIssuesRequest(prefix)
+				{
+					Labels = new[] { "Story" },
+					Repo = "kzu/sandbox",
+					Type = IssueTypeQualifier.Issue,
+					State = ItemState.Closed,
+					// Always point to newest found first.
+					Order = SortDirection.Descending,
+				});
+
+				if (stories.Items.Select(i => i.Number).FirstOrDefault() == story.Number)
+					found = true;
+				else
+					await Task.Delay(200);
+			}
 
 			try
 			{
@@ -104,7 +113,7 @@
 
 				var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
 
-				Assert.True(updated.Body.Contains("#" + story.Number));
+				Assert.True(updated.Body.Contains("#" + story.Number), "Expected link to #" + story.Number + " but was '" + updated.Body + "'.");
 			}
 			finally
 			{
@@ -200,7 +209,7 @@
 				}));
 
 
-			github.Setup(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u => 
+			github.Setup(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u =>
 				u.Body.Contains("#3"))))
 				.Returns(Task.FromResult(task));
 
@@ -223,7 +232,7 @@
 				},
 			});
 
-			github.Verify(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u => 
+			github.Verify(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u =>
 				u.Body.Contains("#3"))));
 		}
 	}

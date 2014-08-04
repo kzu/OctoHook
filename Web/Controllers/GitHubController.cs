@@ -19,9 +19,9 @@
 		static readonly ITracer tracer = Tracer.Get<GitHubController>();
 
 		IServiceLocator locator;
-		IWorkQueue work;
+		IJobQueue work;
 
-		public GitHubController(IServiceLocator locator, IWorkQueue work)
+		public GitHubController(IServiceLocator locator, IJobQueue work)
 		{
 			this.locator = locator;
 			this.work = work;
@@ -41,7 +41,7 @@
 
 			type = keys.First();
 
-			tracer.Verbose("Received GitHub callback for event of type '{0}'.", type);
+			tracer.Verbose("Received GitHub webhook callback for event of type '{0}'.", type);
 
 			try
 			{
@@ -70,10 +70,18 @@
 
 		private void Process<TEvent>(TEvent @event)
 		{
-			foreach (var hook in locator.GetAllInstances<IWebHook<TEvent>>().AsParallel())
+			// Queue async/background jobs
+			foreach (var hook in locator.GetAllInstances<IOctoJob<TEvent>>())
 			{
-				tracer.Verbose("Queuing process with '{0}' hook.", hook.GetType().Name);
-				work.Queue(() => hook.Process(@event), hook.Describe(@event));
+				tracer.Verbose("Queuing process with '{0}' job.", hook.GetType().Name);
+				work.Queue(() => hook.ProcessAsync(@event));
+			}
+
+			// Synchronously execute hooks
+			foreach (var hook in locator.GetAllInstances<IOctoHook<TEvent>>().AsParallel())
+			{
+				tracer.Verbose("Processing with '{0}' hook.", hook.GetType().Name);
+				hook.Process(@event);
 			}
 		}
 	}

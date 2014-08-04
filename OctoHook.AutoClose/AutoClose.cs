@@ -1,4 +1,4 @@
-﻿namespace OctoHook.WebHooks
+﻿namespace OctoHook
 {
 	using Octokit;
 	using Octokit.Events;
@@ -15,7 +15,7 @@
 	/// which happens when the associated commit is pushed to a non-default branch.
 	/// </summary>
 	[Component]
-	public class AutoClose : IWebHook<PushEvent>
+	public class AutoClose : IOctoJob<PushEvent>
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoClose>();
 		static readonly Regex CloseExpr = new Regex(@"(close[s|d]?|fix(es|ed)?|resolve[s|d]?)",
@@ -29,21 +29,13 @@
 			this.github = github;
 		}
 
-		public string Describe(PushEvent @event)
+		public async Task ProcessAsync(PushEvent @event)
 		{
-			return string.Format("AutoClose https://github.com/{0}/{1}/commit/{2}",
+			tracer.Verbose("AutoClose::ProcessAsync https://github.com/{0}/{1}/commit/{2}",
 				@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
 				@event.Repository.Name,
 				@event.HeadCommit.Sha.Substring(0, 6));
-		}
 
-		public void Process(PushEvent @event)
-		{
-			ProcessAsync(@event).Wait();
-		}
-
-		private async Task ProcessAsync(PushEvent @event)
-		{
 			var closingCommits = @event.Commits.Where(c => CloseExpr.IsMatch(c.Message) && IssueNumberExpr.IsMatch(c.Message))
 				.Distinct(new SelectorComparer<PushEvent.CommitInfo, string>(c => c.Sha))
 				.ToArray();

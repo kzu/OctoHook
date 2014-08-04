@@ -1,4 +1,4 @@
-﻿namespace OctoHook.WebHooks
+﻿namespace OctoHook
 {
 	using OctoHook.CommonComposition;
 	using OctoHook.Diagnostics;
@@ -12,7 +12,7 @@
 	using System.Web;
 
 	[Component]
-	public class AutoLabel : IAutoUpdater
+	public class AutoLabel : IOctoIssuer
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLabel>();
 		static readonly Regex expression = new Regex(@"(?<fullLabel>[~|+|-](?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
@@ -25,8 +25,16 @@
 			this.github = github;
 		}
 
-		public bool Apply(IssueUpdate update)
+		public bool Process(IssuesEvent issue, IssueUpdate update)
 		{
+			if (labels == null)
+			{
+				labels = github.Issue.Labels.GetForRepository(issue.Repository.Owner.Login, issue.Repository.Name)
+					.Result
+					.Select(l => l.Name)
+					.ToList();
+			}
+
 			var match = expression.Match(update.Title);
 			if (!match.Success)
 				return false;
@@ -53,14 +61,6 @@
 			update.Title = update.Title.Replace(match.Value, "");
 
 			return true;
-		}
-
-		public void Initialize(IssuesEvent issue)
-		{
-			labels = github.Issue.Labels.GetForRepository(issue.Repository.Owner.Login, issue.Repository.Name)
-				.Result
-				.Select(l => l.Name)
-				.ToList();
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace OctoHook.WebHooks
+﻿namespace OctoHook
 {
 	using OctoHook.CommonComposition;
 	using Octokit;
@@ -7,12 +7,11 @@
 	using System.Text.RegularExpressions;
 
 	[Component]
-	public class AutoAssign : IAutoUpdater
+	public class AutoAssign : IOctoIssuer
 	{
 		static readonly Regex expression = new Regex(@":(?<user>\w+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
-		IssuesEvent issue;
 
-		public bool Apply(IssueUpdate update)
+		public bool Process(IssuesEvent issue, IssueUpdate update)
 		{
 			var match = expression.Match(update.Title);
 			if (!match.Success)
@@ -27,11 +26,6 @@
 			update.Title = update.Title.Replace(match.Value, "");
 
 			return true;
-		}
-
-		public void Initialize(IssuesEvent issue)
-		{
-			this.issue = issue;
 		}
 	}
 }

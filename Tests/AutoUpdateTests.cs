@@ -1,6 +1,7 @@
 ﻿namespace Tests
 {
 	using Newtonsoft.Json.Linq;
+	using OctoHook;
 	using OctoHook.WebHooks;
 	using Octokit;
 	using Octokit.Events;
@@ -29,9 +30,9 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to stories ~story"));
 
-			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
+			var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
 
-			labeler.Process(new Octokit.Events.IssuesEvent
+			await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = issue,
@@ -57,9 +58,9 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to ~foo in the middle doesn't work"));
 
-			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
+			var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
 
-			labeler.Process(new Octokit.Events.IssuesEvent
+			await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = issue,
@@ -85,9 +86,9 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to +doc"));
 
-			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
+			var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
 
-			labeler.Process(new Octokit.Events.IssuesEvent
+			await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = issue,
@@ -113,9 +114,9 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to -qa"));
 
-			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
+			var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
 
-			labeler.Process(new Octokit.Events.IssuesEvent
+			await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = issue,
@@ -142,7 +143,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to +foo"));
 
-			var labeler = new AutoUpdate(github, new IAutoUpdater[] { new AutoLabel(github) });
+			var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
 
 			try
 			{
@@ -150,7 +151,7 @@
 			}
 			catch { }
 
-			labeler.Process(new Octokit.Events.IssuesEvent
+			await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = issue,
@@ -183,9 +184,9 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-assigning to :me"));
 
-			var updater = new AutoUpdate(github, new IAutoUpdater[] { new AutoAssign() });
+			var updater = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoAssign() });
 
-			updater.Process(new Octokit.Events.IssuesEvent
+			await updater.ProcessAsync(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = issue,

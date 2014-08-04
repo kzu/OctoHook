@@ -26,6 +26,29 @@
 		static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 
 		[Fact]
+		public void when_retrieving_scoped_instances_then_succeeds()
+		{
+			var container = ContainerConfiguration.Configure(
+				typeof(AutoAssign).Assembly, 
+				typeof(AutoClose).Assembly, 
+				typeof(AutoLabel).Assembly, 
+				typeof(AutoLink).Assembly, 
+				typeof(OctoIssuerJob).Assembly
+			);
+
+			var lifetime = container.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag);
+
+			var queue1 = container.Resolve<IJobQueue>();
+			var queue2 = container.Resolve<IJobQueue>();
+
+			Assert.Same(queue1, queue2);
+
+			Assert.NotNull(lifetime.Resolve<OctoIssuerJob>());
+
+			Assert.NotNull(lifetime.Resolve<GitHubController>());
+		}
+
+		[Fact]
 		public async Task when_processing_issues_request_then_succeeds()
 		{
 			var work = new Mock<IJobQueue>();

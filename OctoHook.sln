@@ -19,6 +19,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.AutoAssign", "Octo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.AutoClose", "OctoHook.AutoClose\OctoHook.AutoClose.csproj", "{AB10E303-75A1-40D2-81EB-06675D2E327B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EC87041E-F55B-4C21-86CC-CF3ADCD94AB7}"
+	ProjectSection(SolutionItems) = preProject
+		build.bat = build.bat
+		build.proj = build.proj
+		CHANGELOG = CHANGELOG
+		CHANGELOG.md = CHANGELOG.md
+		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

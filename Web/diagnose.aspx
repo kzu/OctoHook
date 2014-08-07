@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+﻿<%@ Page Language="C#" AutoEventWireup="true" %>
+<%@ Import Namespace="System.Reflection" %>
+<%@ Import Namespace="System.IO" %>
+<!DOCTYPE html>
 
-namespace OctoHook
-{
-	public partial class index : System.Web.UI.Page
-	{
-		protected void Page_Load(object sender, EventArgs e)
-		{
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <h1>Available Assemblies</h1>
+    <%
 			var assemblies = new HashSet<Assembly>();
 			assemblies.Add(Assembly.GetExecutingAssembly());
 			foreach (var file in Directory.EnumerateFiles(Server.MapPath("bin"), "*.dll"))
@@ -36,15 +33,13 @@ namespace OctoHook
 				catch { } // AssemblyName loading could fail for non-managed assemblies
 			}
 
-			var writer = new HtmlTextWriter(Response.Output);
-
-			foreach (var asm in assemblies)
+			foreach (var asm in assemblies.OrderBy(a => a.FullName))
 			{
-				writer.Write(asm.FullName);
-				writer.WriteBreak();
+%>
+    <%= asm.FullName %>
+    <br />
+<%
 			}
-
-			writer.Flush();
-		}
-	}
-}
+     %>
+</body>
+</html>

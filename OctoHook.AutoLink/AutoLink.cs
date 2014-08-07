@@ -9,6 +9,7 @@
 	using OctoHook.CommonComposition;
 	using System.Threading.Tasks;
 	using OctoHook.Diagnostics;
+	using System.Collections.Generic;
 
 	[Component]
 	public class AutoLink : IOctoIssuer
@@ -18,6 +19,9 @@
 		static readonly Regex issueLink = new Regex(@"(?<=\#)\d+", RegexOptions.Compiled);
 
 		private IGitHubClient github;
+		// Since this component is per-request, we just keep in-memory track of what we've 
+		// already processed to short-circuit on Process.
+		private HashSet<IssuesEvent> processed = new HashSet<IssuesEvent>();
 
 		public AutoLink(IGitHubClient github)
 		{
@@ -26,12 +30,18 @@
 
 		public bool Process(IssuesEvent issue, IssueUpdate update)
 		{
+			if (processed.Contains(issue))
+				return false;
+
 			tracer.Verbose("AutoLink::Process https://github.com/{0}/{1}/issues/{2}",
 				issue.Repository.Owner.Login,
 				issue.Repository.Name,
 				issue.Issue.Number);
 
-			return ProcessAsync(issue, update).Result;
+			var updated = ProcessAsync(issue, update).Result;
+			processed.Add(issue);
+
+			return updated;
 		}
 
 		private async Task<bool> ProcessAsync(IssuesEvent issue, IssueUpdate update)

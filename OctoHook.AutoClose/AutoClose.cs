@@ -31,7 +31,7 @@
 
 		public async Task ProcessAsync(PushEvent @event)
 		{
-			tracer.Verbose("AutoClose::ProcessAsync https://github.com/{0}/{1}/commit/{2}",
+			tracer.Verbose("ProcessAsync https://github.com/{0}/{1}/commit/{2}",
 				@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
 				@event.Repository.Name,
 				@event.HeadCommit.Sha.Substring(0, 6));

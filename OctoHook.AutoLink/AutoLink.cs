@@ -33,11 +33,6 @@
 			if (processed.Contains(issue))
 				return false;
 
-			tracer.Verbose("AutoLink::Process https://github.com/{0}/{1}/issues/{2}",
-				issue.Repository.Owner.Login,
-				issue.Repository.Name,
-				issue.Issue.Number);
-
 			var updated = ProcessAsync(issue, update).Result;
 			processed.Add(issue);
 

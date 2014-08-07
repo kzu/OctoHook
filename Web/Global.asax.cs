@@ -28,7 +28,7 @@
 			Enum.TryParse<SourceLevels>(tracingLevel, out sourceLevel);
 
 			manager.SetTracingLevel("*", sourceLevel);
-			manager.AddListener("*", new TraceStaticListener());
+			manager.AddListener("*", new TraceStaticListener { Filter = new TraceSourceFilter("*")  });
 
 			Tracer.Initialize(manager);
 
@@ -65,6 +65,21 @@
 				Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
 
 			GlobalConfiguration.Configure(WebApiConfig.Register);
+		}
+
+		private class TraceSourceFilter : TraceFilter
+		{
+			private string sourceName;
+
+			public TraceSourceFilter(string sourceName)
+			{
+				this.sourceName = sourceName;
+			}
+
+			public override bool ShouldTrace(TraceEventCache cache, string source, TraceEventType eventType, int id, string formatOrMessage, object[] args, object data1, object[] data)
+			{
+				return string.Equals(sourceName, source, StringComparison.OrdinalIgnoreCase);
+			}
 		}
 	}
 }

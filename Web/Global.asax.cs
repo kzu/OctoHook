@@ -28,7 +28,7 @@
 			Enum.TryParse<SourceLevels>(tracingLevel, out sourceLevel);
 
 			manager.SetTracingLevel("*", sourceLevel);
-			manager.AddListener("*", new RealtimeTraceListener(ConfigurationManager.AppSettings["TracerHub"]));
+			manager.AddListener("*", new TraceStaticListener());
 
 			Tracer.Initialize(manager);
 

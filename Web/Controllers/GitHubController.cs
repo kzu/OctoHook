@@ -41,6 +41,8 @@
 
 			type = keys.First();
 
+			System.Diagnostics.Trace.TraceInformation(json.ToString(Formatting.Indented));
+
 			tracer.Verbose("Received GitHub webhook callback for event of type '{0}'.", type);
 
 			try

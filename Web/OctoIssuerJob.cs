@@ -60,8 +60,10 @@
 					updates.Add(" labels [" + string.Join(", ", update.Labels) + "]");
 				if (!string.IsNullOrEmpty(update.Assignee))
 					updates.Add(" assignee '" + update.Assignee + "'");
+				if (!string.IsNullOrEmpty(update.Body))
+					updates.Add(" body '" + update.Body + "'");
 
-				tracer.Info(@"Updated issue {0}/{1}#{2} with{3}.",
+				tracer.Info(@"Updated issue {0}/{1}#{2} with {3}.",
 					issue.Repository.Owner.Login,
 					issue.Repository.Name,
 					issue.Issue.Number,

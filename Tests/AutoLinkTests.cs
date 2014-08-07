@@ -40,6 +40,7 @@
 				});
 
 			var linker = new AutoLink(github);
+			var update = new IssueUpdate();
 
 			linker.Process(new Octokit.Events.IssuesEvent
 			{
@@ -47,11 +48,9 @@
 				Issue = task,
 				Repository = repository,
 				Sender = user,
-			});
+			}, update);
 
-			var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
-
-			Assert.True(updated.Body.Contains("#" + story.Number));
+			Assert.True(update.Body.Contains("#" + story.Number));
 
 			await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
 			await github.Issue.Update("kzu", "sandbox", task.Number, new IssueUpdate { State = ItemState.Closed });
@@ -101,6 +100,7 @@
 			try
 			{
 				var linker = new AutoLink(github);
+				var update = new IssueUpdate();
 
 				linker.Process(new Octokit.Events.IssuesEvent
 				{
@@ -108,11 +108,9 @@
 					Issue = task,
 					Repository = repository,
 					Sender = user,
-				});
+				}, update);
 
-				var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
-
-				Assert.True(updated.Body.Contains("#" + story.Number), "Expected link to #" + story.Number + " but was '" + updated.Body + "'.");
+				Assert.True(update.Body.Contains("#" + story.Number), "Expected link to #" + story.Number + " but was '" + update.Body + "'.");
 			}
 			finally
 			{
@@ -149,6 +147,7 @@
 				}));
 
 			var linker = new AutoLink(github.Object);
+			var update = new IssueUpdate();
 
 			linker.Process(new Octokit.Events.IssuesEvent
 			{
@@ -165,7 +164,7 @@
 				Sender = new User
 				{
 				},
-			});
+			}, update);
 
 			github.Verify(x => x.Issue.Get("kzu", "repo", 2));
 		}
@@ -213,6 +212,7 @@
 				.Returns(Task.FromResult(task));
 
 			var linker = new AutoLink(github.Object);
+			var update = new IssueUpdate();
 
 			linker.Process(new Octokit.Events.IssuesEvent
 			{
@@ -229,10 +229,9 @@
 				Sender = new User
 				{
 				},
-			});
+			}, update);
 
-			github.Verify(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u =>
-				u.Body.Contains("#3"))));
+			Assert.True(update.Body.Contains("#3"));
 		}
 	}
 }

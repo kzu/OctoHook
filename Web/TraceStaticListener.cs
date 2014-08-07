@@ -29,18 +29,23 @@ namespace OctoHook
 		{
 			if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
 			{
+				var prefix = source;
+				var dotIndex = prefix.LastIndexOf('.');
+				if (dotIndex != -1)
+					prefix = prefix.Substring(dotIndex + 1, prefix.Length - dotIndex);
+
 				switch (eventType)
 				{
 					case TraceEventType.Critical:
 					case TraceEventType.Error:
-						Trace.TraceError(message);
+						Trace.TraceError("[{0}] {1}", prefix, message);
 						break;
 					case TraceEventType.Verbose:
 					case TraceEventType.Information:
-						Trace.TraceInformation(message);
+						Trace.TraceInformation("[{0}] {1}", prefix, message);
 						break;
 					case TraceEventType.Warning:
-						Trace.TraceWarning(message);
+						Trace.TraceWarning("[{0}] {1}", prefix, message);
 						break;
 					default:
 						break;

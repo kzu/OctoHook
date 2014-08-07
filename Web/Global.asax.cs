@@ -17,7 +17,7 @@
 	using System.Web;
 	using System.Web.Http;
 
-	public class WebApiApplication : HttpApplication
+	public class WebApplication : HttpApplication
 	{
 		protected void Application_Start()
 		{
@@ -32,7 +32,7 @@
 
 			Tracer.Initialize(manager);
 
-			var tracer = Tracer.Get<WebApiApplication>();
+			var tracer = Tracer.Get<WebApplication>();
 
 			var assemblies = new HashSet<Assembly>();
 			assemblies.Add(Assembly.GetExecutingAssembly());

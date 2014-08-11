@@ -110,7 +110,7 @@
 						if (indexOfEnd == -1)
 						{
 							// Simply append the link and the section end.
-							newBody += taskLink + SectionEnd;
+							newBody += Environment.NewLine + taskLink + SectionEnd;
 							// Trace this as a new task list scenario, since the non-existing end usually 
 							// is accompanied by a non-existing begin too.
 							tracer.Info(Strings.Trace.AddedLinkInNewList(taskLink));
@@ -118,7 +118,7 @@
 						else
 						{
 							// Otherwise, insert it before the end section, with a new line at the end.
-							newBody = newBody.Insert(indexOfEnd, taskLink + Environment.NewLine);
+							newBody = newBody.Insert(indexOfEnd, Environment.NewLine + taskLink + Environment.NewLine);
 							tracer.Info(Strings.Trace.InsertedLinkInExistingList(taskLink));
 						}
 					}

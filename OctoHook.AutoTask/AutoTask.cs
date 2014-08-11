@@ -127,14 +127,15 @@
 						tracer.Info(Strings.Trace.UpdatedExistingLink(taskLink));
 					}
 
-                    var update = new IssueUpdate
-                    {
-                        Body = newBody,
-                        // If we don't preserve these properties, 
-                        // they get reset :S
-                        Assignee = linked.Assignee.Login,
-                        Milestone = linked.Milestone == null ? default(int?) : linked.Milestone.Number,
-                    };
+                    var update = new IssueUpdate { Body = newBody };
+
+                    // If we don't preserve these properties, 
+                    // they get reset :S
+                    if (linked.Assignee != null)
+                        update.Assignee = linked.Assignee.Login;
+                    if (linked.Milestone != null)
+                        update.Milestone = linked.Milestone.Number;
+
                     // Labels must be preserved explicitly too.
                     foreach (var label in linked.Labels)
                     {
@@ -150,7 +151,7 @@
 				}
 				catch (Exception ex)
 				{
-					tracer.Error("Failed to process issue.", ex);
+					tracer.Error(ex, "Failed to process issue: " + ex.Message);
                     throw;
 				}
 			}

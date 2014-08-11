@@ -127,11 +127,22 @@
 						tracer.Info(Strings.Trace.UpdatedExistingLink(taskLink));
 					}
 
+                    var update = new IssueUpdate
+                    {
+                        Body = newBody,
+                        // If we don't preserve these properties, 
+                        // they get reset :S
+                        Assignee = linked.Assignee.Login,
+                        Milestone = linked.Milestone == null ? default(int?) : linked.Milestone.Number,
+                    };
+                    // Labels must be preserved explicitly too.
+                    foreach (var label in linked.Labels)
+                    {
+                        update.Labels.Add(label.Name);
+                    }
+
 					// Finally, update the referenced task body.
-					await github.Issue.Update(link.Owner, link.Repo, link.Number, new IssueUpdate
-						{
-							Body = newBody
-						});
+                    await github.Issue.Update(link.Owner, link.Repo, link.Number, update);
 				}
 				catch (NotFoundException)
 				{

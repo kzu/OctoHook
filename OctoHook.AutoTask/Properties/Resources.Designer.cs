@@ -67,6 +67,7 @@ namespace OctoHook.Properties {
         ///&lt;a href=&quot;{wiki}&quot; title=&quot;{title}&quot;&gt;&lt;img src=&quot;http://goo.gl/q05sAm&quot; /&gt;&lt;/a&gt;
         ///
         ///&gt; {note}
+        ///
         ///.
         /// </summary>
         internal static string FormatHeader {

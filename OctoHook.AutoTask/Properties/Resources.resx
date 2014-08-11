@@ -124,6 +124,7 @@
 &lt;a href="{wiki}" title="{title}"&gt;&lt;img src="http://goo.gl/q05sAm" /&gt;&lt;/a&gt;
 
 &gt; {note}
+
 </value>
   </data>
   <data name="FormatTask" xml:space="preserve">

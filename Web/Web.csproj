@@ -169,6 +169,7 @@
     </Compile>
     <Compile Include="IJobQueue.cs" />
     <Compile Include="netfx\System\AppDomainData.cs" />
+    <Compile Include="netfx\System\Collections\Generic\CollectionAddRange.cs" />
     <Compile Include="netfx\System\Collections\Generic\DictionaryGetOrAdd.cs" />
     <Compile Include="netfx\System\Guard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\SemanticGit.1.0.2\build\SemanticGit.props" Condition="Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.props')" />
+  <Import Project="..\packages\SemanticGit.1.0.6\build\SemanticGit.props" Condition="Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -21,7 +21,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>470fb59a</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>5f824c53</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -191,21 +191,25 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\OctoHook.AutoAssign\OctoHook.AutoAssign.csproj">
+    <ProjectReference Include="..\OctoHook.AutoAssign\AutoAssign.csproj">
       <Project>{04e38f78-5ba0-4fe4-b3f6-a1a4f34e641c}</Project>
-      <Name>OctoHook.AutoAssign</Name>
+      <Name>AutoAssign</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OctoHook.AutoClose\OctoHook.AutoClose.csproj">
+    <ProjectReference Include="..\OctoHook.AutoClose\AutoClose.csproj">
       <Project>{ab10e303-75a1-40d2-81eb-06675d2e327b}</Project>
-      <Name>OctoHook.AutoClose</Name>
+      <Name>AutoClose</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OctoHook.AutoLabel\OctoHook.AutoLabel.csproj">
+    <ProjectReference Include="..\OctoHook.AutoLabel\AutoLabel.csproj">
       <Project>{16dd79b4-63cc-4600-af06-a648830d394a}</Project>
-      <Name>OctoHook.AutoLabel</Name>
+      <Name>AutoLabel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OctoHook.AutoLink\OctoHook.AutoLink.csproj">
+    <ProjectReference Include="..\OctoHook.AutoLink\AutoLink.csproj">
       <Project>{50961b30-3e7c-4824-92cb-26a4b1f295e0}</Project>
-      <Name>OctoHook.AutoLink</Name>
+      <Name>AutoLink</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OctoHook.AutoTask\AutoTask.csproj">
+      <Project>{5a1e4d59-f962-4392-a021-d5535e6b13c1}</Project>
+      <Name>AutoTask</Name>
     </ProjectReference>
     <ProjectReference Include="..\OctoHook\OctoHook.csproj">
       <Project>{85896b11-3552-4152-8296-31fb43f5afcd}</Project>
@@ -241,8 +245,8 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.2\build\SemanticGit.props'))" />
-    <Error Condition="!Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.2\build\SemanticGit.targets'))" />
+    <Error Condition="!Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.6\build\SemanticGit.props'))" />
+    <Error Condition="!Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.6\build\SemanticGit.targets'))" />
   </Target>
-  <Import Project="..\packages\SemanticGit.1.0.2\build\SemanticGit.targets" Condition="Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.targets')" />
+  <Import Project="..\packages\SemanticGit.1.0.6\build\SemanticGit.targets" Condition="Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.targets')" />
 </Project>

@@ -10,13 +10,16 @@
 	using System.Threading.Tasks;
 	using OctoHook.Diagnostics;
 	using System.Collections.Generic;
+	using System.Globalization;
+	using System.Reflection;
+	using OctoHook.Properties;
 
 	[Component]
 	public class AutoLink : IOctoIssuer
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLink>();
 		static readonly Regex storyPrefixExpr = new Regex(@"\[[^\]]+\]", RegexOptions.Compiled);
-		static readonly Regex issueLink = new Regex(@"(?<=\#)\d+", RegexOptions.Compiled);
+		static readonly Regex issueLinkExpr = new Regex(@"(?<=\#)\d+", RegexOptions.Compiled);
 
 		private IGitHubClient github;
 		// Since this component is per-request, we just keep in-memory track of what we've 
@@ -61,7 +64,7 @@
 			var saved = await github.Issue.Get(issue.Repository.Owner.Login, issue.Repository.Name, issue.Issue.Number);
 			if (!string.IsNullOrEmpty(saved.Body))
 			{
-				foreach (var number in issueLink.Matches(saved.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
+				foreach (var number in issueLinkExpr.Matches(saved.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
 				{
 					try
 					{

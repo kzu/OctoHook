@@ -20,103 +20,78 @@
 	{
 		static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 
+		static readonly Repository repository = new Repository
+			{
+				Owner = new User
+				{
+					Login = "kzu"
+				},
+				Name = "autolink",
+			};
+
 		[Fact]
-		public async Task when_processing_issue_without_link_then_automatically_links()
+		public void when_processing_issue_without_link_then_automatically_links()
 		{
-			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
-			var repository = await github.Repository.Get("kzu", "sandbox");
-			var user = await github.User.Current();
+			var github = new Mock<IGitHubClient>();
+			var story = new Issue
+			{
+				Title = "[hook] Auto-linking to stories",
+				Labels = new [] { new Label { Name = "Story" } },
+			};
+			var task = new Issue
+			{
+				Title = "[hook] Task about auto-linking",
+				Labels = new [] { new Label { Name = "Task" } },
+			};
 
-			var story = await github.Issue.Create(
-				"kzu", "sandbox", new NewIssue("[hook] Auto-linking to stories")
-				{
-					Labels = { "Story" },
-				});
+			github.SetupGet(repository, task);
+			github.SetupSearch(story);
 
-			var task = await github.Issue.Create(
-				"kzu", "sandbox", new NewIssue("[hook] Task about auto-linking")
-				{
-					Labels = { "Task" },
-				});
-
-			var linker = new AutoLink(github);
+			var linker = new AutoLink(github.Object);
 			var update = new IssueUpdate();
-
-			linker.Process(new Octokit.Events.IssuesEvent
+			var updated = linker.Process(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = task,
 				Repository = repository,
-				Sender = user,
+				Sender = new User { Login = "kzu" },
 			}, update);
 
+			Assert.True(updated);
 			Assert.True(update.Body.Contains("#" + story.Number));
-
-			await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
-			await github.Issue.Update("kzu", "sandbox", task.Number, new IssueUpdate { State = ItemState.Closed });
 		}
 
 		[Fact]
-		public async Task when_processing_issue_then_automatically_links_with_closed_story()
+		public void when_processing_issue_then_automatically_links_with_closed_story()
 		{
-			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
-			var repository = await github.Repository.Get("kzu", "sandbox");
-			var user = await github.User.Current();
-			var prefix = "[" + Guid.NewGuid() + "]";
-
-			var story = await github.Issue.Create("kzu", "sandbox",
-				new NewIssue(prefix + " Auto-linking to closed stories")
-				{
-					Labels = { "Story" },
-				});
-
-			await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
-
-			var task = await github.Issue.Create(
-				"kzu", "sandbox", new NewIssue(prefix + " Task about auto-linking to closed story")
-				{
-					Labels = { "Task" },
-				});
-
-			var found = false;
-			while (!found)
+			var github = new Mock<IGitHubClient>();
+			var story = new Issue
 			{
-				var stories = await github.Search.SearchIssues(new SearchIssuesRequest(prefix)
-				{
-					Labels = new[] { "Story" },
-					Repo = "kzu/sandbox",
-					Type = IssueTypeQualifier.Issue,
-					State = ItemState.Closed,
-					// Always point to newest found first.
-					Order = SortDirection.Descending,
-				});
-
-				if (stories.Items.Select(i => i.Number).FirstOrDefault() == story.Number)
-					found = true;
-				else
-					await Task.Delay(200);
-			}
-
-			try
+				Title = "[hook] Auto-linking to closed stories",
+				Labels = new [] { new Label { Name = "Story" } },
+				State = ItemState.Closed,
+			};
+			var task = new Issue
 			{
-				var linker = new AutoLink(github);
-				var update = new IssueUpdate();
+				Title = "[hook] Task about auto-linking to closed story",
+				Labels = new [] { new Label { Name = "Task" } },
+			};
 
-				linker.Process(new Octokit.Events.IssuesEvent
+			github.SetupGet(repository, task);
+			github.SetupSearch(story);
+
+			var linker = new AutoLink(github.Object);
+			var update = new IssueUpdate();
+			var updated = linker.Process(new Octokit.Events.IssuesEvent
 				{
 					Action = IssuesEvent.IssueAction.Opened,
 					Issue = task,
 					Repository = repository,
-					Sender = user,
+					Sender = repository.Owner,
 				}, update);
 
-				Assert.True(update.Body.Contains("#" + story.Number), "Expected link to #" + story.Number + " but was '" + update.Body + "'.");
-			}
-			finally
-			{
-				github.Issue.Update("kzu", "sandbox", task.Number, new IssueUpdate { State = ItemState.Closed }).Wait();
-				github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed }).Wait();
-			}
+			Assert.True(updated);
+			Assert.True(update.Body.Contains("#" + story.Number), "Expected link to #" + story.Number + " but was '" + update.Body + "'.");
 		}
 
 		[Fact]
@@ -128,45 +103,29 @@
 				Number = 1,
 				Title = "[ui] Issue with story prefix",
 				Body = "An issue with an existing story #2 link",
-				Labels = new List<Label>
-				{
-					new Label { Name = "Task" }
-				}
+				Labels = new [] { new Label { Name = "Task" } }
 			};
 
-			github.Setup(x => x.Issue.Get("kzu", "repo", 1))
-				.Returns(Task.FromResult(task));
-			github.Setup(x => x.Issue.Get("kzu", "repo", 2))
-				.Returns(Task.FromResult(new Issue
-				{
-					Number = 2,
-					Labels = new List<Label>
-					{
-						new Label { Name = "Story" }
-					}
-				}));
+			github.SetupGet(repository, task);
+			github.SetupGet(repository, new Issue
+			{
+				Number = 2,
+				Labels = new [] { new Label { Name = "Story" } }
+			});
 
 			var linker = new AutoLink(github.Object);
 			var update = new IssueUpdate();
-
-			linker.Process(new Octokit.Events.IssuesEvent
+			var updated = linker.Process(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = task,
-				Repository = new Repository
-				{
-					Owner = new User
-					{
-						Login = "kzu"
-					},
-					Name = "repo"
-				},
-				Sender = new User
-				{
-				},
+				Repository = repository,
+				Sender = repository.Owner,
 			}, update);
 
-			github.Verify(x => x.Issue.Get("kzu", "repo", 2));
+
+			github.Verify(x => x.Issue.Get(repository.Owner.Login, repository.Name, 2));
+			Assert.False(updated);
 		}
 
 		[Fact]
@@ -178,59 +137,32 @@
 				Number = 1,
 				Title = "[ui] Issue with story prefix",
 				Body = "An issue with an existing issue #2 link",
-				Labels = new List<Label>
-				{
-					new Label { Name = "Task" }
-				}
+				Labels = new [] { new Label { Name = "Task" } }
 			};
 
-			github.Setup(x => x.Issue.Get("kzu", "repo", 1))
-				.Returns(Task.FromResult(task));
-			github.Setup(x => x.Issue.Get("kzu", "repo", 2))
-				.Returns(Task.FromResult(new Issue
-				{
-					Number = 2,
-					Labels = new List<Label>()
-				}));
-
-			github.Setup(x => x.Search.SearchIssues(It.IsAny<SearchIssuesRequest>()))
-				.Returns(Task.FromResult<SearchIssuesResult>(new SearchIssuesResult
-				{
-					Items = new List<Issue>
-					{
-						new Issue
-						{
-							Number = 3,
-							Title = "[ui] Story"
-						}
-					}
-				}));
-
-
-			github.Setup(x => x.Issue.Update("kzu", "repo", 1, It.Is<IssueUpdate>(u =>
-				u.Body.Contains("#3"))))
-				.Returns(Task.FromResult(task));
+			github.SetupGet(repository, task);
+			github.SetupGet(repository, new Issue
+			{
+				Number = 2,
+				Labels = new List<Label>()
+			});
+			github.SetupSearch(new Issue
+			{
+				Number = 3,
+				Title = "[ui] Story"
+			});
 
 			var linker = new AutoLink(github.Object);
 			var update = new IssueUpdate();
-
-			linker.Process(new Octokit.Events.IssuesEvent
+			var updated = linker.Process(new Octokit.Events.IssuesEvent
 			{
 				Action = IssuesEvent.IssueAction.Opened,
 				Issue = task,
-				Repository = new Repository
-				{
-					Owner = new User
-					{
-						Login = "kzu"
-					},
-					Name = "repo"
-				},
-				Sender = new User
-				{
-				},
+				Repository = repository,
+				Sender = repository.Owner,
 			}, update);
 
+			Assert.True(updated);
 			Assert.True(update.Body.Contains("#3"));
 		}
 	}

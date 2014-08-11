@@ -9,13 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook", "OctoHook\OctoHook.csproj", "{85896B11-3552-4152-8296-31FB43F5AFCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.AutoLabel", "OctoHook.AutoLabel\OctoHook.AutoLabel.csproj", "{16DD79B4-63CC-4600-AF06-A648830D394A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLabel", "OctoHook.AutoLabel\AutoLabel.csproj", "{16DD79B4-63CC-4600-AF06-A648830D394A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.AutoLink", "OctoHook.AutoLink\OctoHook.AutoLink.csproj", "{50961B30-3E7C-4824-92CB-26A4B1F295E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoLink", "OctoHook.AutoLink\AutoLink.csproj", "{50961B30-3E7C-4824-92CB-26A4B1F295E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.AutoAssign", "OctoHook.AutoAssign\OctoHook.AutoAssign.csproj", "{04E38F78-5BA0-4FE4-B3F6-A1A4F34E641C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoAssign", "OctoHook.AutoAssign\AutoAssign.csproj", "{04E38F78-5BA0-4FE4-B3F6-A1A4F34E641C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.AutoClose", "OctoHook.AutoClose\OctoHook.AutoClose.csproj", "{AB10E303-75A1-40D2-81EB-06675D2E327B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoClose", "OctoHook.AutoClose\AutoClose.csproj", "{AB10E303-75A1-40D2-81EB-06675D2E327B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EC87041E-F55B-4C21-86CC-CF3ADCD94AB7}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTask", "OctoHook.AutoTask\AutoTask.csproj", "{5A1E4D59-F962-4392-A021-D5535E6B13C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,10 @@ Global
 		{AB10E303-75A1-40D2-81EB-06675D2E327B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB10E303-75A1-40D2-81EB-06675D2E327B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB10E303-75A1-40D2-81EB-06675D2E327B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

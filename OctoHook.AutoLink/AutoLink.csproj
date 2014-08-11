@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\SemanticGit.1.0.2\build\SemanticGit.props" Condition="Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.props')" />
+  <Import Project="..\packages\SemanticGit.1.0.6\build\SemanticGit.props" Condition="Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,7 +12,7 @@
     <AssemblyName>OctoHook.AutoLink</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>9929a138</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>d6b46ad5</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,17 +40,33 @@
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AutoLink.cs" />
+    <Compile Include="netfx\System\StringFormatWith.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Strings.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="OctoHook.AutoLink.nuspec" />
     <None Include="packages.config" />
+    <None Include="Properties\Resources.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.Strings.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OctoHook\OctoHook.csproj">
@@ -58,15 +74,26 @@
       <Name>OctoHook</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.2\build\SemanticGit.props'))" />
-    <Error Condition="!Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.2\build\SemanticGit.targets'))" />
+    <Error Condition="!Exists('..\packages\netfx-System.StringResources.2.0.0\build\netfx-System.StringResources.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\netfx-System.StringResources.2.0.0\build\netfx-System.StringResources.targets'))" />
+    <Error Condition="!Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.6\build\SemanticGit.props'))" />
+    <Error Condition="!Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.6\build\SemanticGit.targets'))" />
   </Target>
-  <Import Project="..\packages\SemanticGit.1.0.2\build\SemanticGit.targets" Condition="Exists('..\packages\SemanticGit.1.0.2\build\SemanticGit.targets')" />
+  <Import Project="..\packages\netfx-System.StringResources.2.0.0\build\netfx-System.StringResources.targets" Condition="Exists('..\packages\netfx-System.StringResources.2.0.0\build\netfx-System.StringResources.targets')" />
+  <Import Project="..\packages\SemanticGit.1.0.6\build\SemanticGit.targets" Condition="Exists('..\packages\SemanticGit.1.0.6\build\SemanticGit.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -117,8 +117,8 @@
                         }
                         else
                         {
-                            // Otherwise, insert it before the end section, with a new line at the end.
-                            newBody = newBody.Insert(indexOfEnd, Environment.NewLine + taskLink + Environment.NewLine);
+                            // Otherwise, insert it before the end section
+                            newBody = newBody.Insert(indexOfEnd, Environment.NewLine + taskLink);
                             tracer.Info(Strings.Trace.InsertedLinkInExistingList(taskLink));
                         }
                     }

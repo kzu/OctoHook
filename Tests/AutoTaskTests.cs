@@ -46,7 +46,6 @@
             });
 
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -79,7 +78,6 @@
             });
 
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -112,7 +110,6 @@
             });
 
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -146,7 +143,6 @@
             });
 
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -180,7 +176,6 @@
 
             var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title);
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -218,7 +213,6 @@
 
             var expectedLink = OctoHook.Properties.Strings.FormatTask("x", "#" + task.Number, task.Title);
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -256,7 +250,6 @@
             // Expect same state but new title
             var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title);
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {
@@ -269,6 +262,45 @@
             github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
                 u.Body.Contains(expectedLink))));
         }
+
+        [Fact]
+        public async Task when_task_list_exists_then_appends_to_list()
+        {
+            var github = new Mock<IGitHubClient>();
+            var task = new Issue
+            {
+                Number = 1,
+                Title = "Issue with story link",
+                Body = "Story #2",
+            };
+
+            github.SetupGet(repository, task);
+            github.SetupGet(repository, new Issue
+            {
+                Number = 2,
+                Title = "Story",
+                Body = 
+                    AutoTask.header +
+                    AutoTask.SectionBegin +
+                    OctoHook.Properties.Strings.FormatTask(" ", "#5", "Existing task") +
+                    AutoTask.SectionEnd
+            });
+
+            var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title);
+            var linker = new AutoTask(github.Object);
+
+            await linker.ProcessAsync(new Octokit.Events.IssuesEvent
+            {
+                Action = IssuesEvent.IssueAction.Opened,
+                Issue = task,
+                Repository = repository,
+                Sender = repository.Owner
+            });
+
+            github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
+                u.Body.Contains(expectedLink))));
+        }
+
 
         [Fact]
         public async Task when_task_list_link_reopened_then_updates_its_state()
@@ -294,7 +326,6 @@
 
             var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title);
             var linker = new AutoTask(github.Object);
-            var update = new IssueUpdate();
 
             await linker.ProcessAsync(new Octokit.Events.IssuesEvent
             {

@@ -43,6 +43,13 @@
 				issue.Issue.Number);
 
 			var update = new IssueUpdate { Title = issue.Issue.Title.Trim() };
+            if (issue.Issue.Assignee != null)
+                update.Assignee = issue.Issue.Assignee.Login;
+            if (issue.Issue.Milestone != null)
+                update.Milestone = issue.Issue.Milestone.Number;
+            if (issue.Issue.Labels.Any())
+                update.Labels.AddRange(issue.Issue.Labels.Select(l => l.Name));
+
 			var updated = false;
 
 			while (issuers.Any(updater => updater.Process(issue, update)))
@@ -53,6 +60,10 @@
 
 			if (updated)
 			{
+                var labels = update.Labels.Distinct();
+                update.Labels.Clear();
+                update.Labels.AddRange(labels);
+
 				await github.Issue.Update(issue.Repository.Owner.Login, issue.Repository.Name, issue.Issue.Number, update);
 
 				var updates = new List<string>();

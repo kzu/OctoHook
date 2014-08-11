@@ -27,6 +27,7 @@ namespace OctoHook.Properties
 		///	
 		///	> {note}
 		///	
+		///	
 		/// </summary>
 		public static string FormatHeader(object version, object wiki, object title, object note)
 		{

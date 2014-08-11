@@ -307,5 +307,66 @@
 			github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
 				u.Body.Contains(expectedLink))));
 		}
-	}
+
+		[Fact]
+		public async Task when_task_list_link_exists_and_matches_then_does_not_update()
+		{
+			var github = new Mock<IGitHubClient>();
+			var task = new Issue
+			{
+				Number = 1,
+				Title = "Issue with story link",
+				Body = "Story #2",
+			};
+
+			github.SetupGet(repository, task);
+			github.SetupGet(repository, new Issue
+			{
+				Number = 2,
+				Title = "Story", 
+				Body = AutoTask.SectionBegin + Environment.NewLine +
+					OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title) +  
+					Environment.NewLine + AutoTask.SectionEnd
+			});
+
+			var linker = new AutoTask(github.Object);
+			var update = new IssueUpdate();
+
+			await linker.ProcessAsync(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = task,
+				Repository = repository,
+				Sender = repository.Owner
+			});
+
+            github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.IsAny<IssueUpdate>()),
+                Times.Never());
+		}
+
+		[Fact]
+		public async Task when_link_comes_from_task_list_then_does_not_process_it()
+		{
+			var github = new Mock<IGitHubClient>(MockBehavior.Strict);
+			var task = new Issue
+			{
+				Number = 1,
+				Title = "Issue with story link",
+				Body = "- [ ] #2 A Story",
+			};
+
+			github.SetupGet(repository, task);
+
+			var linker = new AutoTask(github.Object);
+			var update = new IssueUpdate();
+
+			await linker.ProcessAsync(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = task,
+				Repository = repository,
+				Sender = repository.Owner
+			});
+		}
+    }
 }

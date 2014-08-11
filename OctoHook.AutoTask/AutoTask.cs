@@ -73,8 +73,13 @@
 						// Otherwise, it will be a simple link
 						"#" + @event.Issue.Number;
 
-					var taskLink = Strings.FormatTask(@event.Issue.State == ItemState.Closed ? "x" : " ", expectedLink, @event.Issue.Title);
-					var taskLinkRegex = new Regex(string.Format(CultureInfo.InvariantCulture, taskLinkExpr, expectedLink));
+					var taskLink = Strings.FormatTask(@event.Issue.State == ItemState.Closed ? "x" : " ", expectedLink, @event.Issue.Title).Trim();
+					var taskLinkRegex = new Regex(string.Format(CultureInfo.InvariantCulture, taskLinkExpr, expectedLink), RegexOptions.Multiline);
+
+                    var existingMatch = taskLinkRegex.Match(linked.Body);
+                    if (existingMatch.Success && existingMatch.Value.Trim() == taskLink)
+                        return;
+
 					var newBody = taskLinkRegex.Replace(linked.Body, taskLink);
 
 					// If the new body isn't different, we haven't found an existing link, so we need to add 
@@ -128,6 +133,7 @@
 				catch (Exception ex)
 				{
 					tracer.Error("Failed to process issue.", ex);
+                    throw;
 				}
 			}
 		}

@@ -17,8 +17,15 @@
 	[Component]
 	public class AutoTask : IOctoJob<IssuesEvent>
 	{
-		internal const string SectionBegin = "<!-- Begin OctoHook.AutoTask -->";
-		internal const string SectionEnd = "<!-- End OctoHook.AutoTask -->";
+		internal const string SectionBegin = @"
+
+<!-- Begin OctoHook.AutoTask -->
+
+";
+		internal const string SectionEnd = @"
+
+<!-- End OctoHook.AutoTask -->
+";
 
 		internal static readonly string header = Strings.FormatHeader(ThisAssembly.InformationalVersion,
 			Strings.Wiki, Strings.Title, Strings.Note);
@@ -103,7 +110,7 @@
 						if (indexOfEnd == -1)
 						{
 							// Simply append the link and the section end.
-							newBody += Environment.NewLine + taskLink + Environment.NewLine + SectionEnd;
+							newBody += taskLink + SectionEnd;
 							// Trace this as a new task list scenario, since the non-existing end usually 
 							// is accompanied by a non-existing begin too.
 							tracer.Info(Strings.Trace.AddedLinkInNewList(taskLink));

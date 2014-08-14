@@ -9,7 +9,7 @@
 </head>
 <body>
     <h1>Build Info</h1>
-    <%= ThisAssembly.InformationalVersion %>
+    OctoHook.Web, Version=<%= AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName.StartsWith("OctoHook.Web")).GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion %>
     <h1>Available Assemblies</h1>
     <%
 			var assemblies = new HashSet<Assembly>();

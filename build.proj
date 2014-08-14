@@ -15,6 +15,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<SolutionToBuild Include="$(MSBuildThisFileDirectory)*.sln" />
 		<PackageProject Include="**\*.csproj">
 			<NuSpec>$(MSBuildThisFileDirectory)%(RecursiveDir)%(Filename).nuspec</NuSpec>
 		</PackageProject>
@@ -33,7 +34,8 @@
 	</Target>
 
 	<Target Name="Build" DependsOnTargets="Restore">
-		<Exec Command="$(NuGetCommand) pack %(PackageProject.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet"
+		<MSBuild Projects="@(SolutionToBuild)" Targets="Build" Properties="Configuration=$(Configuration);TrackFileAccess=$(TrackFileAccess)" />
+		<Exec Command="$(NuGetCommand) pack %(PackageProject.Identity) -Symbols -NoPackageAnalysis -NonInteractive -Verbosity quiet -Properties Configuration=$(Configuration)"
 			  Condition="Exists('%(NuSpec)')" />
 	</Target>
 

@@ -118,7 +118,7 @@
                 // By default, current dir. This makes it work for unit tests too.
                 var baseDir = "";
                 if (webApp != null)
-                    baseDir = webApp.Server.MapPath("bin");
+                    baseDir = webApp.Server.MapPath("/bin");
 
                 foreach (var file in Directory.EnumerateFiles(baseDir, "*.dll"))
                 {

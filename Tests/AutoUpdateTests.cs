@@ -2,6 +2,7 @@
 {
     using Newtonsoft.Json.Linq;
     using OctoHook;
+    using OctoHook.Web;
     using Octokit;
     using Octokit.Events;
     using Octokit.Internal;

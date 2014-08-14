@@ -8,6 +8,8 @@
     <title></title>
 </head>
 <body>
+    <h1>Build Info</h1>
+    <%= ThisAssembly.InformationalVersion %>
     <h1>Available Assemblies</h1>
     <%
 			var assemblies = new HashSet<Assembly>();

@@ -61,7 +61,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="OctoHook.AutoLink.nuspec" />
+    <None Include="AutoLink.nuspec" />
     <None Include="packages.config" />
     <None Include="Properties\Resources.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

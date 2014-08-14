@@ -1,4 +1,4 @@
-﻿namespace OctoHook
+﻿namespace OctoHook.Web
 {
 	using System;
 	using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿namespace OctoHook
+﻿namespace OctoHook.Web
 {
     using Newtonsoft.Json;
     using OctoHook.CommonComposition;
@@ -7,6 +7,7 @@
     using Octokit.Events;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -22,6 +23,7 @@
     /// title.
     /// </devdoc>
     [Component]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class OctoIssuerJob : IOctoJob<IssuesEvent>
     {
         static readonly ITracer tracer = Tracer.Get<OctoIssuerJob>();

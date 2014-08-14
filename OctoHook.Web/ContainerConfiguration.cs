@@ -1,36 +1,28 @@
-﻿namespace OctoHook
+﻿namespace OctoHook.Web
 {
-	using Autofac;
-	using Autofac.Extras.CommonServiceLocator;
-	using Autofac.Integration.WebApi;
-	using Microsoft.Practices.ServiceLocation;
-	using OctoHook.CommonComposition;
-	using Octokit;
-	using Octokit.Internal;
-	using System.Collections.Generic;
-	using System.Configuration;
-	using System.Reflection;
-	using System.Web;
-	using System.Web.Http;
-	using System.Linq;
+    using Autofac;
+    using Autofac.Extras.CommonServiceLocator;
+    using Microsoft.Practices.ServiceLocation;
+    using OctoHook.CommonComposition;
+    using Octokit;
+    using Octokit.Internal;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Linq;
+    using System.Reflection;
 
 	public static class ContainerConfiguration
 	{
-		public static IContainer Configure(IEnumerable<Assembly> assemblies)
+		public static IContainer Configure(string authToken, IEnumerable<Assembly> assemblies)
 		{
-			return Configure(assemblies.ToArray());
+			return Configure(authToken, assemblies.ToArray());
 		}
 
-		public static IContainer Configure(params Assembly[] assemblies)
+		public static IContainer Configure(string authToken, params Assembly[] assemblies)
 		{
 			IContainer container = null;
 
 			var builder = new ContainerBuilder();
-
-			// Additional extensibility hook, where components can also 
-			// provide WebApi controllers.
-			builder.RegisterApiControllers(assemblies);
-			builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
 			builder.RegisterComponents(assemblies)
 				// Non-singleton components are registered as per-request.
@@ -45,7 +37,7 @@
 				new GitHubClient(
 					new ProductHeaderValue("OctoHook"),
 					new InMemoryCredentialStore(
-						new Credentials(ConfigurationManager.AppSettings["GitHubToken"]))));
+						new Credentials(authToken))));
 
 			builder.Register<IServiceLocator>(c =>
 					new AutofacServiceLocator(c.Resolve<IComponentContext>()))

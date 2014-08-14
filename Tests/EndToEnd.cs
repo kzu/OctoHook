@@ -10,8 +10,8 @@
 	using System.Linq;
 	using Newtonsoft.Json.Linq;
 	using OctoHook;
-	using OctoHook.Controllers;
 	using OctoHook.CommonComposition;
+    using OctoHook.Web;
 	using Octokit;
 	using Octokit.Events;
 	using Octokit.Internal;
@@ -20,15 +20,18 @@
 	using System.Net.Http;
 	using System.Threading.Tasks;
 	using Xunit;
+    using System.Diagnostics;
 
 	public class EndToEnd
 	{
+        static readonly string authToken = File.ReadAllText(@"..\..\Token").Trim();
 		static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 
 		[Fact]
 		public void when_retrieving_scoped_instances_then_succeeds()
 		{
 			var container = ContainerConfiguration.Configure(
+                authToken,
 				typeof(AutoAssign).Assembly, 
 				typeof(AutoClose).Assembly, 
 				typeof(AutoLabel).Assembly, 
@@ -44,8 +47,6 @@
 			Assert.Same(queue1, queue2);
 
 			Assert.NotNull(lifetime.Resolve<OctoIssuerJob>());
-
-			Assert.NotNull(lifetime.Resolve<GitHubController>());
 		}
 
 		[Fact]
@@ -56,6 +57,7 @@
 				.Callback<Func<Task>>(a => a().Wait());
 
 			var container = ContainerConfiguration.Configure(
+                authToken,
 				typeof(AutoAssign).Assembly, 
 				typeof(AutoClose).Assembly, 
 				typeof(AutoLabel).Assembly, 
@@ -87,7 +89,7 @@
 				}
 			};
 
-			var controller = lifetime.Resolve<GitHubController>();
+            var controller = new OctoController(authToken, SourceLevels.Critical);
 			controller.Post(request, JObject.Parse(json));
 		}
 

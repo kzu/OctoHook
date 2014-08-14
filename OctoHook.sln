@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoTask", "OctoHook.AutoTask\AutoTask.csproj", "{5A1E4D59-F962-4392-A021-D5535E6B13C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctoHook.Web", "OctoHook.Web\OctoHook.Web.csproj", "{28387280-20AE-4E79-9253-DACC42782B78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +68,10 @@ Global
 		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A1E4D59-F962-4392-A021-D5535E6B13C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28387280-20AE-4E79-9253-DACC42782B78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28387280-20AE-4E79-9253-DACC42782B78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28387280-20AE-4E79-9253-DACC42782B78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28387280-20AE-4E79-9253-DACC42782B78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

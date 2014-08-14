@@ -12,7 +12,6 @@
 	public class GitHubController : ApiController
 	{
         static readonly SourceLevels traceLevel;
-        private OctoController controller;
 
 		static GitHubController()
 		{
@@ -23,22 +22,22 @@
             traceLevel = sourceLevel;
 		}
 
-        public GitHubController()
-        {
-            this.controller = new OctoController(
-                ConfigurationManager.AppSettings["GitHubToken"],
-                traceLevel, 
-                HttpContext.Current.ApplicationInstance);
-        }
-
 		public string Get()
 		{
-            return controller.Get();
+            return new OctoController(
+                ConfigurationManager.AppSettings["GitHubToken"],
+                traceLevel, 
+                HttpContext.Current.ApplicationInstance)
+                .Get();
 		}
 
 		public void Post(HttpRequestMessage request, [FromBody]JObject json)
 		{
-            controller.Post(request, json);
+            new OctoController(
+                ConfigurationManager.AppSettings["GitHubToken"],
+                traceLevel, 
+                HttpContext.Current.ApplicationInstance)
+                .Post(request, json);
 		}
 	}
 }

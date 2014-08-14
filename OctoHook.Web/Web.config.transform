@@ -1,0 +1,18 @@
+﻿<configuration>
+    <appSettings>
+        <!--
+             ***** OctoHook *****
+             NOTE: it's best to add the token via your app hosting service (i.e. in Azure app settings key/value pairs) 
+             rather than placing them in the clear here. But it depends on your scenario. 
+             The provided Controllers/GitHubController.cs retrieves the GitHubToken from AppSettings, which you can 
+             also change to retrieve from wherever you need.
+             
+        <add key="GitHubToken" value="YOUR_TOKEN_HERE" />
+            
+             Optionally configure the trace level for the OctoHook stuff. It supports streaming logs from Azure. 
+             This attribute must contain a valid System.Diagnostics.SourceLevels enum value.
+
+        <add key="TracingLevel" value="Error" />
+        -->
+    </appSettings>
+</configuration>

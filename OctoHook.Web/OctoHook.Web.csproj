@@ -107,6 +107,7 @@
     <Content Include="OctoHook.Web.nuspec" />
     <None Include="app.config" />
     <None Include="packages.config" />
+    <Content Include="Web.config.transform" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

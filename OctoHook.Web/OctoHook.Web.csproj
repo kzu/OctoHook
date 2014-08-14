@@ -90,7 +90,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ContainerConfiguration.cs" />
-    <Compile Include="GitHubController.cs" />
+    <None Include="Controllers\GitHubController.cs" />
     <Compile Include="OctoController.cs" />
     <Compile Include="External\CommonComposition.Autofac\CompositionExtensions.cs" />
     <Compile Include="External\Diagnostics\Tracer\SystemDiagnostics\StartActivityExtension.cs" />
@@ -112,8 +112,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Controllers\GitHubController.cs.pp">
+      <DependentUpon>GitHubController.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Content>
     <Content Include="OctoHook.Web.nuspec" />
     <None Include="app.config" />
+    <None Include="Controllers\GitHubController.tt">
+      <SubType>Code</SubType>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GitHubController.cs.pp</LastGenOutput>
+    </None>
     <None Include="packages.config" />
     <Content Include="Web.config.transform" />
   </ItemGroup>

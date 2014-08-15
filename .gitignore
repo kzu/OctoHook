@@ -177,3 +177,4 @@ FakesAssemblies/
 /Tests/Fixups.cs
 /NuGet.exe
 *.nupkg
+/OctoHook.Web/*.t4properties

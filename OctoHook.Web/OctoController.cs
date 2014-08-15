@@ -90,14 +90,14 @@
             using (var scope = components.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag))
             {
                 // Queue async/background jobs
-                foreach (var hook in components.Resolve<IEnumerable<IOctoJob<TEvent>>>())
+                foreach (var hook in scope.Resolve<IEnumerable<IOctoJob<TEvent>>>())
                 {
                     tracer.Verbose("Queuing process with '{0}' job.", hook.GetType().Name);
                     work.Queue(() => hook.ProcessAsync(@event));
                 }
 
                 // Synchronously execute hooks
-                foreach (var hook in components.Resolve<IEnumerable<IOctoHook<TEvent>>>().AsParallel())
+                foreach (var hook in scope.Resolve<IEnumerable<IOctoHook<TEvent>>>().AsParallel())
                 {
                     tracer.Verbose("Processing with '{0}' hook.", hook.GetType().Name);
                     hook.Process(@event);

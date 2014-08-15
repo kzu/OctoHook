@@ -119,7 +119,7 @@
                 assemblies.Add(Assembly.GetExecutingAssembly());
 
                 // By default, current dir. This makes it work for unit tests too.
-                var baseDir = "";
+                var baseDir = ".";
                 if (webApp != null)
                     baseDir = webApp.Server.MapPath("/bin");
 

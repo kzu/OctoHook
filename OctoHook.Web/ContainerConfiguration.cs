@@ -1,8 +1,6 @@
 ﻿namespace OctoHook.Web
 {
     using Autofac;
-    using Autofac.Extras.CommonServiceLocator;
-    using Microsoft.Practices.ServiceLocation;
     using OctoHook.CommonComposition;
     using Octokit;
     using Octokit.Internal;
@@ -38,10 +36,6 @@
 					new ProductHeaderValue("OctoHook"),
 					new InMemoryCredentialStore(
 						new Credentials(authToken))));
-
-			builder.Register<IServiceLocator>(c =>
-					new AutofacServiceLocator(c.Resolve<IComponentContext>()))
-				.InstancePerRequest();
 
 			container = builder.Build();
 

@@ -1,7 +1,7 @@
 ﻿namespace OctoHook.Web
 {
-    using Autofac.Extras.CommonServiceLocator;
-    using Microsoft.Practices.ServiceLocation;
+    using Autofac;
+    using Autofac.Core.Lifetime;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using OctoHook.Diagnostics;
@@ -19,7 +19,7 @@
     {
         static readonly object syncLock = new object();
         static ITracer tracer;
-        static IServiceLocator components;
+        static IContainer components;
 
         IJobQueue work;
 
@@ -39,7 +39,7 @@
             InitializeTracing(traceLevel);
             InitializeComposition(authToken, webApp);
 
-            this.work = components.GetInstance<IJobQueue>();
+            this.work = components.Resolve<IJobQueue>();
         }
 
         public string Get()
@@ -87,18 +87,21 @@
 
         private void Process<TEvent>(TEvent @event)
         {
-            // Queue async/background jobs
-            foreach (var hook in components.GetAllInstances<IOctoJob<TEvent>>())
+            using (var scope = components.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag))
             {
-                tracer.Verbose("Queuing process with '{0}' job.", hook.GetType().Name);
-                work.Queue(() => hook.ProcessAsync(@event));
-            }
+                // Queue async/background jobs
+                foreach (var hook in components.Resolve<IEnumerable<IOctoJob<TEvent>>>())
+                {
+                    tracer.Verbose("Queuing process with '{0}' job.", hook.GetType().Name);
+                    work.Queue(() => hook.ProcessAsync(@event));
+                }
 
-            // Synchronously execute hooks
-            foreach (var hook in components.GetAllInstances<IOctoHook<TEvent>>().AsParallel())
-            {
-                tracer.Verbose("Processing with '{0}' hook.", hook.GetType().Name);
-                hook.Process(@event);
+                // Synchronously execute hooks
+                foreach (var hook in components.Resolve<IEnumerable<IOctoHook<TEvent>>>().AsParallel())
+                {
+                    tracer.Verbose("Processing with '{0}' hook.", hook.GetType().Name);
+                    hook.Process(@event);
+                }
             }
         }
 
@@ -141,7 +144,7 @@
                     catch { } // AssemblyName loading could fail for non-managed assemblies
                 }
 
-                components = new AutofacServiceLocator(ContainerConfiguration.Configure(authToken, assemblies));
+                components = ContainerConfiguration.Configure(authToken, assemblies);
             }
         }
 

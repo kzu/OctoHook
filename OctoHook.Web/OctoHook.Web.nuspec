@@ -21,6 +21,7 @@ v0.1
 		<tags>$tags$</tags>
         <dependencies>
             <dependency id="OctoHook" version="$version$" />
+            <dependency id="Newtonsoft.Json" version="4.5" />
         </dependencies>
 	</metadata>
 </package>

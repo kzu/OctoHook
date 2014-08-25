@@ -172,26 +172,5 @@
 			Assert.Equal(ItemState.Closed, updated1.State);
 			Assert.Equal(ItemState.Closed, updated2.State);
 		}
-
-		[Fact(Skip = "For ad-hoc testing")]
-		public async Task when_processing_push_then_closes_issue()
-		{
-			var @event = JsonConvert.DeserializeObject<PushEvent>(File.ReadAllText(@"..\..\test.json"));
-
-			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
-			var hook = new AutoClose(github);
-
-			await hook.ProcessAsync(@event);
-
-			try
-			{
-				var issue = await github.Issue.Get("xamarin", "XamarinVS", int.Parse(Regex.Match(@event.HeadCommit.Message, @"(?<=\#)\d+").Value));
-				Assert.Equal(ItemState.Closed, issue.State);
-			}
-			catch (NotFoundException)
-			{
-				Console.WriteLine("Issue was not found: #{0}", Regex.Match(@event.HeadCommit.Message, @"(?<=\#)\d+").Value);
-			}
-		}
 	}
 }

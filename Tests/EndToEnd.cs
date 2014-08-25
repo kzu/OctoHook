@@ -73,13 +73,7 @@
 			var issue = await github.Issue.Create(
 				"kzu", "sandbox", new NewIssue("Auto-labeling to stories and assigning to kzu +story :kzu"));
 
-			var json = JsonConvert.SerializeObject(new Octokit.Events.IssuesEvent
-			{
-				Action = IssuesEvent.IssueAction.Opened,
-				Issue = issue,
-				Repository = repository,
-				Sender = user,
-			});
+            var json = File.ReadAllText(@"..\..\test.json");
 
 			var request = new HttpRequestMessage(HttpMethod.Post, "github")
 			{

@@ -44,8 +44,7 @@
 
         public async Task ProcessAsync(IssuesEvent @event)
         {
-            // Need to retrieve the full issue, since the event only contains the title
-            var issue = await github.Issue.Get(@event.Repository.Owner.Login, @event.Repository.Name, @event.Issue.Number);
+            var issue = @event.Issue;
 
             foreach (var link in issueLinkExpr.Matches(issue.Body)
                 .OfType<Match>()

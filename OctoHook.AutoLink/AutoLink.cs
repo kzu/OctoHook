@@ -60,11 +60,9 @@
 				return false;
 
 			// Skip the issue if it already has a story link
-			// Need to retrieve the full issue, since the event only contains the title
-			var saved = await github.Issue.Get(issue.Repository.Owner.Login, issue.Repository.Name, issue.Issue.Number);
-			if (!string.IsNullOrEmpty(saved.Body))
+			if (!string.IsNullOrEmpty(issue.Issue.Body))
 			{
-				foreach (var number in issueLinkExpr.Matches(saved.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
+				foreach (var number in issueLinkExpr.Matches(issue.Issue.Body).OfType<Match>().Where(m => m.Success).Select(m => int.Parse(m.Value)))
 				{
 					try
 					{
@@ -99,8 +97,8 @@
 				return false;
 			}
 
-			update.State = saved.State;
-			update.Body = (saved.Body == null ? "" : saved.Body + @"
+			update.State = issue.Issue.State;
+			update.Body = (issue.Issue.Body == null ? "" : issue.Issue.Body + @"
 
 ")
 					+ "Story #" + story.Number;

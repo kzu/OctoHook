@@ -1,4 +1,4 @@
-OctoHook
+![Icon](https://raw.github.com/kzu/OctoHook/master/Design/32.png) OctoHook
 ========
 
 GitHub hooks made easy and in C#.

@@ -18,7 +18,7 @@
     public class AutoTask : IOctoJob<IssuesEvent>
     {
         internal static readonly string header = Strings.FormatHeader(ThisAssembly.InformationalVersion,
-            Strings.Wiki, Strings.Title, Strings.Note);
+            Strings.Note, Strings.Wiki, Strings.Title);
 
 		static readonly string taskLinkFormat = @"-\s\[(\s|x|X)\]\s{0}.+$";
 

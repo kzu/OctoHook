@@ -60,103 +60,6 @@
         }
 
         [Fact]
-        public async Task when_octohook_begin_doesnt_exists_then_adds_it_automatically()
-        {
-            var github = new Mock<IGitHubClient>();
-            var task = new Issue
-            {
-                Number = 1,
-                Title = "Issue with story link",
-                Body = "Story #2",
-            };
-
-            github.SetupGet(repository, task);
-            github.SetupGet(repository, new Issue
-            {
-                Number = 2,
-                Title = "Story"
-            });
-
-            var linker = new AutoTask(github.Object);
-
-            await linker.ProcessAsync(new Octokit.Events.IssuesEvent
-            {
-                Action = IssuesEvent.IssueAction.Opened,
-                Issue = task,
-                Repository = repository,
-                Sender = repository.Owner
-            });
-
-            github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
-                u.Body.Contains(AutoTask.SectionBegin))));
-        }
-
-        [Fact]
-        public async Task when_octohook_end_doesnt_exists_then_adds_it_automatically()
-        {
-            var github = new Mock<IGitHubClient>();
-            var task = new Issue
-            {
-                Number = 1,
-                Title = "Issue with story link",
-                Body = "Story #2",
-            };
-
-            github.SetupGet(repository, task);
-            github.SetupGet(repository, new Issue
-            {
-                Number = 2,
-                Title = "Story"
-            });
-
-            var linker = new AutoTask(github.Object);
-
-            await linker.ProcessAsync(new Octokit.Events.IssuesEvent
-            {
-                Action = IssuesEvent.IssueAction.Opened,
-                Issue = task,
-                Repository = repository,
-                Sender = repository.Owner
-            });
-
-            github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
-                u.Body.Contains(AutoTask.SectionEnd))));
-        }
-
-        [Fact]
-        public async Task when_octohook_begin_exists_but_no_header_exists_then_it_is_not_added_again()
-        {
-            var github = new Mock<IGitHubClient>();
-            var task = new Issue
-            {
-                Number = 1,
-                Title = "Issue with story link",
-                Body = "Story #2",
-            };
-
-            github.SetupGet(repository, task);
-            github.SetupGet(repository, new Issue
-            {
-                Number = 2,
-                Title = "Story",
-                Body = AutoTask.SectionBegin + Environment.NewLine + AutoTask.SectionEnd,
-            });
-
-            var linker = new AutoTask(github.Object);
-
-            await linker.ProcessAsync(new Octokit.Events.IssuesEvent
-            {
-                Action = IssuesEvent.IssueAction.Opened,
-                Issue = task,
-                Repository = repository,
-                Sender = repository.Owner
-            });
-
-            github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
-                !u.Body.Contains(AutoTask.header))));
-        }
-
-        [Fact]
         public async Task when_task_list_link_doesnt_exists_then_adds_it_automatically()
         {
             var github = new Mock<IGitHubClient>();
@@ -206,9 +109,8 @@
             {
                 Number = 2,
                 Title = "Story",
-                Body = AutoTask.SectionBegin +
-                    OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title) +
-                    AutoTask.SectionEnd
+                Body = AutoTask.header +
+                    OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title)
             });
 
             var expectedLink = OctoHook.Properties.Strings.FormatTask("x", "#" + task.Number, task.Title);
@@ -242,9 +144,8 @@
             {
                 Number = 2,
                 Title = "Story",
-                Body = AutoTask.SectionBegin +
-                    OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, "Some old title") +
-                    AutoTask.SectionEnd
+                Body = AutoTask.header +
+                    OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, "Some old title")
             });
 
             // Expect same state but new title
@@ -281,10 +182,8 @@
                 Title = "Story",
                 Body = 
                     AutoTask.header +
-                    AutoTask.SectionBegin +
                     OctoHook.Properties.Strings.FormatTask(" ", "#5", "Existing task5") + Environment.NewLine +
-                    OctoHook.Properties.Strings.FormatTask(" ", "#6", "Existing task6") +
-                    AutoTask.SectionEnd
+                    OctoHook.Properties.Strings.FormatTask(" ", "#6", "Existing task6") 
             });
 
             var body = "";
@@ -308,49 +207,6 @@
         }
 
         [Fact]
-        public async Task when_task_list_lacks_end_section_then_automatically_adds_it()
-        {
-            var github = new Mock<IGitHubClient>();
-            var task = new Issue
-            {
-                Number = 1,
-                Title = "Issue with story link",
-                Body = "Story #2",
-            };
-
-            github.SetupGet(repository, task);
-            github.SetupGet(repository, new Issue
-            {
-                Number = 2,
-                Title = "Story",
-                Body = 
-                    AutoTask.header +
-                    AutoTask.SectionBegin +
-                    OctoHook.Properties.Strings.FormatTask(" ", "#5", "Existing task5") + Environment.NewLine +
-                    OctoHook.Properties.Strings.FormatTask(" ", "#6", "Existing task6")
-            });
-
-            var body = "";
-            github.Setup(x => x.Issue.Update(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<IssueUpdate>()))
-                .Callback<string, string, int, IssueUpdate>((_, __, ___, update) => body = update.Body)
-                .ReturnsAsync(null);
-
-            var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title);
-            var linker = new AutoTask(github.Object);
-
-            await linker.ProcessAsync(new Octokit.Events.IssuesEvent
-            {
-                Action = IssuesEvent.IssueAction.Opened,
-                Issue = task,
-                Repository = repository,
-                Sender = repository.Owner
-            });
-
-            github.Verify(x => x.Issue.Update(repository.Owner.Login, repository.Name, 2, It.Is<IssueUpdate>(u =>
-                u.Body.Contains(AutoTask.SectionEnd))));
-        }
-
-        [Fact]
         public async Task when_task_list_link_reopened_then_updates_its_state()
         {
             var github = new Mock<IGitHubClient>();
@@ -367,9 +223,7 @@
             {
                 Number = 2,
                 Title = "Story",
-                Body = AutoTask.SectionBegin +
-                    OctoHook.Properties.Strings.FormatTask("x", "#" + task.Number, task.Title) +
-                    AutoTask.SectionEnd
+                Body = OctoHook.Properties.Strings.FormatTask("x", "#" + task.Number, task.Title)
             });
 
             var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title);
@@ -403,9 +257,7 @@
             {
                 Number = 2,
                 Title = "Story",
-                Body = AutoTask.SectionBegin + Environment.NewLine +
-                    OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title) +
-                    Environment.NewLine + AutoTask.SectionEnd
+                Body = OctoHook.Properties.Strings.FormatTask(" ", "#" + task.Number, task.Title)
             });
 
             var linker = new AutoTask(github.Object);
@@ -447,7 +299,6 @@
                 Sender = repository.Owner
             });
         }
-
 
         [Fact]
         public async Task when_task_list_link_doesnt_exists_then_adds_it_automatically_integration()

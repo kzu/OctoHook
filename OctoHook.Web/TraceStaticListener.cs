@@ -32,7 +32,7 @@
                 var prefix = source;
                 var dotIndex = prefix.LastIndexOf('.');
                 if (dotIndex != -1)
-                    prefix = prefix.Substring(dotIndex + 1, prefix.Length - dotIndex);
+                    prefix = prefix.Substring(dotIndex + 1);
 
                 switch (eventType)
                 {

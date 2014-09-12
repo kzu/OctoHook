@@ -57,18 +57,23 @@
                 return;
 
             type = keys.First();
+            var hooks = new HashSet<string>(request.GetQueryNameValuePairs()
+                .Where(pair => pair.Key == "h" || pair.Key == "hooks")
+                .SelectMany(pair => pair.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)));
 
             tracer.Verbose("Received GitHub webhook callback for event of type '{0}'.", type);
+            if (hooks.Count > 0)
+                tracer.Verbose("Received specific hooks to process: {0}.", string.Join(", ", hooks));
 
             try
             {
                 switch (type)
                 {
                     case "issues":
-                        Process<IssuesEvent>(JsonConvert.DeserializeObject<IssuesEvent>(json.ToString()));
+                        Process<IssuesEvent>(JsonConvert.DeserializeObject<IssuesEvent>(json.ToString()), hooks);
                         break;
                     case "push":
-                        Process<PushEvent>(JsonConvert.DeserializeObject<PushEvent>(json.ToString()));
+                        Process<PushEvent>(JsonConvert.DeserializeObject<PushEvent>(json.ToString()), hooks);
                         break;
                     default:
                         break;
@@ -85,22 +90,44 @@
             }
         }
 
-        private void Process<TEvent>(TEvent @event)
+        private void Process<TEvent>(TEvent @event, HashSet<string> hooks)
         {
+            Func<string, bool> shouldProcess;
+            if (hooks.Count == 0)
+                shouldProcess = _ => true;
+            else
+                shouldProcess = hook => hooks.Contains(hook);
+
             using (var scope = components.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag))
             {
                 // Queue async/background jobs
-                foreach (var hook in scope.Resolve<IEnumerable<IOctoJob<TEvent>>>())
+                foreach (var job in scope.Resolve<IEnumerable<IOctoJob<TEvent>>>())
                 {
-                    tracer.Verbose("Queuing process with '{0}' job.", hook.GetType().Name);
-                    work.Queue(() => hook.ProcessAsync(@event));
+                    var jobName = job.GetType().Name;
+                    if (shouldProcess(jobName))
+                    {
+                        tracer.Verbose("Queuing process with '{0}' job.", jobName);
+                        work.Queue(() => job.ProcessAsync(@event));
+                    }
+                    else
+                    {
+                        tracer.Verbose("Skipping process with '{0}' job since it was not in the explicit hook list received.");
+                    }
                 }
 
                 // Synchronously execute hooks
                 foreach (var hook in scope.Resolve<IEnumerable<IOctoHook<TEvent>>>().AsParallel())
                 {
-                    tracer.Verbose("Processing with '{0}' hook.", hook.GetType().Name);
-                    hook.Process(@event);
+                    var hookName = hook.GetType().Name;
+                    if (shouldProcess(hookName))
+                    {
+                        tracer.Verbose("Processing with '{0}' hook.", hookName);
+                        hook.Process(@event);
+                    }
+                    else
+                    {
+                        tracer.Verbose("Skipping process with '{0}' hook since it was not in the explicit hook list received.");
+                    }
                 }
             }
         }

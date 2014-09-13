@@ -37,6 +37,9 @@
 					new InMemoryCredentialStore(
 						new Credentials(authToken))));
 
+            builder.Register<IApiConnection>(c =>
+                new ApiConnection(c.Resolve<IGitHubClient>().Connection));
+
 			container = builder.Build();
 
 			return container;

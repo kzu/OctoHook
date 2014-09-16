@@ -111,7 +111,7 @@
                     }
                     else
                     {
-                        tracer.Verbose("Skipping process with '{0}' job since it was not in the explicit hook list received.");
+                        tracer.Verbose("Skipping process with '{0}' job since it was not in the explicit hook list received.", jobName);
                     }
                 }
 
@@ -126,7 +126,7 @@
                     }
                     else
                     {
-                        tracer.Verbose("Skipping process with '{0}' hook since it was not in the explicit hook list received.");
+                        tracer.Verbose("Skipping process with '{0}' hook since it was not in the explicit hook list received.", hookName);
                     }
                 }
             }

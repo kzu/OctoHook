@@ -2,8 +2,10 @@
 {
     using Autofac;
     using OctoHook.CommonComposition;
+    using OctoHook.Diagnostics;
     using Octokit;
     using Octokit.Internal;
+    using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
@@ -22,7 +24,7 @@
 
 			var builder = new ContainerBuilder();
 
-			builder.RegisterComponents(assemblies)
+			builder.RegisterComponents(assemblies.SelectMany(asm => TryGetTypes(asm)))
 				// Non-singleton components are registered as per-request.
 				.ActivatorData.ConfigurationActions.Add((t, rb) =>
 				{
@@ -44,5 +46,19 @@
 
 			return container;
 		}
+
+        private static IEnumerable<Type> TryGetTypes(Assembly asm)
+        {
+            try
+            {
+                return asm.GetTypes();
+            }
+            catch (Exception ex)
+            {
+                Tracer.Get(typeof(ContainerConfiguration))
+                    .Warn("Failed to load types from assembly {0}. Exception: {1}", asm, ex);
+                return Enumerable.Empty<Type>();
+            }
+        }
 	}
 }

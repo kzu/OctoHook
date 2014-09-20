@@ -7,6 +7,9 @@
 		<BuildRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), .gitignore))</BuildRoot>
 		<BuildRoot Condition="!HasTrailingSlash('$(BuildRoot)')">$(BuildRoot)\</BuildRoot>
 		<SolutionDir>$(BuildRoot)</SolutionDir>
+		
+		<!-- Tell SemanticGit to always use releaseable version for assembly and package -->
+    		<AssemblyVersionFormat>MAJOR.MINOR.PATCH</AssemblyVersionFormat>
 	</PropertyGroup>
 
 	<!-- Enable opening the solution in VS2012 and 2013 -->

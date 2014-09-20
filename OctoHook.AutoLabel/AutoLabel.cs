@@ -15,7 +15,7 @@
 	public class AutoLabel : IOctoIssuer
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLabel>();
-		static readonly Regex expression = new Regex(@"(?<fullLabel>[~|+|-](?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		static readonly Regex expression = new Regex(@"(?<fullLabel>+(?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 		IGitHubClient github;
 		List<string> labels;
@@ -42,7 +42,7 @@
 			// Match label in case-insensitive manner, without the prefix first
 			var label = labels.FirstOrDefault(l => string.Equals(l, match.Groups["simpleLabel"].Value, StringComparison.OrdinalIgnoreCase));
 			if (label == null)
-				// Labels themselves could use the "+" or "~" sign, so we match next by the full string.
+				// Labels themselves could use the "+" sign, so we match next by the full string.
 				label = labels.FirstOrDefault(l => string.Equals(l, match.Groups["fullLabel"].Value, StringComparison.OrdinalIgnoreCase));
 
 			if (label != null)

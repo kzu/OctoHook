@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\SemanticGit.1.0.10\build\SemanticGit.props" Condition="Exists('..\packages\SemanticGit.1.0.10\build\SemanticGit.props')" />
+  <Import Project="..\packages\SemanticGit.2.0.5\build\SemanticGit.props" Condition="Exists('..\packages\SemanticGit.2.0.5\build\SemanticGit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,7 +12,7 @@
     <AssemblyName>OctoHook.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>96fb5d41</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>c0960f41</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -128,10 +128,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SemanticGit.1.0.10\build\SemanticGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.10\build\SemanticGit.props'))" />
-    <Error Condition="!Exists('..\packages\SemanticGit.1.0.10\build\SemanticGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.1.0.10\build\SemanticGit.targets'))" />
+    <Error Condition="!Exists('..\packages\SemanticGit.2.0.5\build\SemanticGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.2.0.5\build\SemanticGit.props'))" />
+    <Error Condition="!Exists('..\packages\SemanticGit.2.0.5\build\SemanticGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SemanticGit.2.0.5\build\SemanticGit.targets'))" />
   </Target>
-  <Import Project="..\packages\SemanticGit.1.0.10\build\SemanticGit.targets" Condition="Exists('..\packages\SemanticGit.1.0.10\build\SemanticGit.targets')" />
+  <Import Project="..\packages\SemanticGit.2.0.5\build\SemanticGit.targets" Condition="Exists('..\packages\SemanticGit.2.0.5\build\SemanticGit.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

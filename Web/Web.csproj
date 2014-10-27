@@ -107,9 +107,6 @@
     <None Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GlobalAssemblyInfo.cs">
-      <Link>Properties\GlobalAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="..\OctoHook.Web\Controllers\GitHubController.cs">
       <Link>Controllers\GitHubController.cs</Link>
     </Compile>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{A1490934-3903-49EA-9D8F-8729D54D7002}"
 EndProject
@@ -19,10 +19,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoClose", "OctoHook.AutoC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EC87041E-F55B-4C21-86CC-CF3ADCD94AB7}"
 	ProjectSection(SolutionItems) = preProject
-		build.bat = build.bat
 		build.proj = build.proj
+		build.props = build.props
+		build.ps1 = build.ps1
+		build.targets = build.targets
 		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
 		LICENSE = LICENSE
+		OctoHook.props = OctoHook.props
+		OctoHook.targets = OctoHook.targets
 		README.md = README.md
 	EndProjectSection
 EndProject

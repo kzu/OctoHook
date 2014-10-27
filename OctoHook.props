@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	
+	<Import Project="packages\SemanticGit\build\SemanticGit.props" />
 
 	<!-- Our own new custom properties -->
 	<PropertyGroup>
@@ -9,7 +11,7 @@
 		<SolutionDir>$(BuildRoot)</SolutionDir>
 		
 		<!-- Tell SemanticGit to always use releaseable version for assembly and package -->
-    		<AssemblyVersionFormat>MAJOR.MINOR.PATCH</AssemblyVersionFormat>
+    	<AssemblyVersionFormat>MAJOR.MINOR.PATCH</AssemblyVersionFormat>
 	</PropertyGroup>
 
 	<!-- Enable opening the solution in VS2012 and 2013 -->

@@ -11,4 +11,5 @@
 [assembly: AssemblyMetadata("licenseUrl", "https://github.com/kzu/OctoHook/blob/master/LICENSE")]
 [assembly: AssemblyMetadata("iconUrl", "https://raw.github.com/kzu/OctoHook/master/design/icon-32.png")]
 [assembly: AssemblyMetadata("tags", "github webhook")]
+[assembly: AssemblyMetadata("version", ThisAssembly.Version)]
 

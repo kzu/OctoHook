@@ -47,7 +47,7 @@ namespace OctoHook.Diagnostics
         /// <summary>
         /// Provides the implementation for managing tracers.
         /// </summary>
-        internal static void Initialize(ITracerManager manager)
+        public static void Initialize(ITracerManager manager)
         {
             Tracer.manager = manager;
         }

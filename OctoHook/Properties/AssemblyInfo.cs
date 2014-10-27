@@ -6,4 +6,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Core interfaces for OctoHook extensions.")]
 [assembly: AssemblyMetadata("projectUrl", "https://github.com/kzu/OctoHook/wiki")]
 
-[assembly: InternalsVisibleTo("OctoHook.Web")]
+//[assembly: InternalsVisibleTo("OctoHook.Web")]

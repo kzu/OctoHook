@@ -79,6 +79,84 @@
 		}
 
 		[Fact]
+		public async Task when_processing_push_then_preserves_labels()
+		{
+			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+			var repository = await github.Repository.Get("kzu", "sandbox");
+			var user = await github.User.Current();
+
+			var task = await github.Issue.Create(
+				"kzu", "sandbox", new NewIssue("Task that should auto-close from commit")
+				{
+					Labels = { "Task" },
+				});
+
+			var hook = new AutoClose(github);
+
+			await hook.ProcessAsync(new PushEvent
+			{
+				Commits = new[]
+				{ 
+					new PushEvent.CommitInfo
+					{
+						Message = "Closes #" + task.Number,
+						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
+					},
+				},
+				HeadCommit = new PushEvent.CommitInfo
+				{
+					Message = "Closes #" + task.Number,
+					Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
+				},
+				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
+			});
+
+			var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
+
+			Assert.Equal(1, updated.Labels.Count);
+			Assert.Equal("Task", updated.Labels.Select(l => l.Name).First());
+		}
+
+		[Fact]
+		public async Task when_processing_push_then_clears_asignee()
+		{
+			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+			var repository = await github.Repository.Get("kzu", "sandbox");
+			var user = await github.User.Current();
+
+			var task = await github.Issue.Create(
+				"kzu", "sandbox", new NewIssue("Task that should auto-close from commit")
+				{
+					Labels = { "Task" },
+					Assignee = "kzu",
+				});
+
+			var hook = new AutoClose(github);
+
+			await hook.ProcessAsync(new PushEvent
+			{
+				Commits = new[]
+				{ 
+					new PushEvent.CommitInfo
+					{
+						Message = "Closes #" + task.Number,
+						Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
+					},
+				},
+				HeadCommit = new PushEvent.CommitInfo
+				{
+					Message = "Closes #" + task.Number,
+					Sha = "ae257bb398c8aa3293b70c7495ae43033a5f0698"
+				},
+				Repository = AutoMapper.Mapper.Map<PushEvent.RepositoryInfo>(repository)
+			});
+
+			var updated = await github.Issue.Get("kzu", "sandbox", task.Number);
+
+			Assert.Null(updated.Assignee);
+		}
+
+		[Fact]
 		public async Task when_processing_push_multiple_commits_then_auto_closes_issues()
 		{
 			var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));

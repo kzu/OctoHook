@@ -89,15 +89,21 @@
 					continue;
 				}
 
+				var update = new IssueUpdate
+				{
+					State = ItemState.Closed,
+					Assignee = ""
+				};
+				foreach (var label in issue.Labels.Select(l => l.Name))
+				{
+					update.Labels.Add(label);
+				}
+
 				await github.Issue.Update(
 					@event.Repository.Owner.Name ?? @event.Repository.Owner.Login,
 					@event.Repository.Name,
 					issue.Number,
-					new IssueUpdate
-					{
-						State = ItemState.Closed,
-						Assignee = "",
-					});
+					update);
 
 				if (issue.Assignee != null)
 					tracer.Info("Closed issue {0}/{1}#{2} automatically and unassigned from '{3}'.",

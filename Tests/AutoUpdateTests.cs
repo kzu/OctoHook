@@ -28,7 +28,7 @@
             var user = await github.User.Current();
 
             var issue = await github.Issue.Create(
-                "kzu", "sandbox", new NewIssue("Auto-labeling to stories ~story"));
+                "kzu", "sandbox", new NewIssue("Auto-labeling to stories +story"));
 
             var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
 
@@ -131,6 +131,40 @@
 
             await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
         }
+
+        [Fact]
+        public async Task when_processing_issue_with_declared_check_label_then_applies_it_with_check()
+        {
+            var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+            var repository = await github.Repository.Get("kzu", "sandbox");
+
+			var label = await github.Issue.Labels.Get("kzu", "sandbox", "✓QA");
+			if (label == null)
+				await github.Issue.Labels.Create("kzu", "sandbox", new NewLabel("✓QA", "#bfd4f2"));
+
+            var user = await github.User.Current();
+
+            var issue = await github.Issue.Create(
+                "kzu", "sandbox", new NewIssue("Auto-labeling to ✓qa"));
+
+            var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
+
+            await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
+            {
+                Action = IssuesEvent.IssueAction.Opened,
+                Issue = issue,
+                Repository = repository,
+                Sender = user,
+            });
+
+            var updated = await github.Issue.Get("kzu", "sandbox", issue.Number);
+
+            Assert.Equal("Auto-labeling to", updated.Title);
+            Assert.True(updated.Labels.Any(l => l.Name == "✓QA"));
+
+            await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
+        }
+
 
         [Fact]
         public async Task when_processing_issue_with_undeclared_plus_label_then_applies_it_without_plus()

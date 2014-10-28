@@ -15,7 +15,8 @@
 	public class AutoLabel : IOctoIssuer
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLabel>();
-		static readonly Regex expression = new Regex(@"(?<fullLabel>+(?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		// \u2713 == ✓
+		static readonly Regex expression = new Regex(@"(?<fullLabel>[\u2713|+|-](?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 		IGitHubClient github;
 		List<string> labels;

@@ -75,7 +75,7 @@
 
             var json = File.ReadAllText(@"..\..\test.json");
 
-			var request = new HttpRequestMessage(HttpMethod.Post, "github")
+			var request = new HttpRequestMessage(HttpMethod.Post, "http://octohook.azurewebsites.net/github")
 			{
 				Headers = 
 				{
@@ -86,13 +86,6 @@
             var controller = new OctoController(authToken, SourceLevels.Critical);
 			controller.Post(request, JObject.Parse(json));
 		}
-
-		//[Fact]
-		//public void when_processing_non_singletons_then_can_set_as_instance_per_request()
-		//{
-		//	var builder = new ContainerBuilder();
-
-		//}
 
 		[Component(IsSingleton = true)]
 		public class PerApp : IApp { }

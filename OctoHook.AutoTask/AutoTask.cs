@@ -110,7 +110,7 @@
                         tracer.Info(Strings.Trace.UpdatedExistingLink(taskLink));
                     }
 
-                    var update = new IssueUpdate { Body = newBody };
+                    var update = new IssueUpdate { Body = newBody, State = linked.State };
 
                     // If we don't preserve these properties, 
                     // they get reset :S

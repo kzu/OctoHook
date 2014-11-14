@@ -334,5 +334,43 @@
             await github.Issue.Update("kzu", "sandbox", task.Number, new IssueUpdate { State = ItemState.Closed });
             await github.Issue.Update("kzu", "sandbox", story.Number, new IssueUpdate { State = ItemState.Closed });
         }
-    }
+
+        [Fact]
+        public async Task when_linked_task_is_closed_then_doesnt_reopen_it_integration()
+        {
+            var credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
+            var github = new GitHubClient(new ProductHeaderValue("octohook"), new InMemoryCredentialStore(credentials));
+            var parent = await github.Issue.Create("kzu", "sandbox", new NewIssue("Parent"));
+            var child = await github.Issue.Create("kzu", "sandbox", new NewIssue("Issue with link to parent")
+            {
+                Body = "Related to #" + parent.Number,
+            });
+
+			// Close the parent.
+			await github.Issue.Update("kzu", "sandbox", parent.Number, new IssueUpdate { State = ItemState.Closed });
+
+            var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + child.Number, child.Title);
+            var tasker = new AutoTask(github);
+            var update = new IssueUpdate();
+
+			await tasker.ProcessAsync(new Octokit.Events.IssuesEvent
+			{
+				Action = IssuesEvent.IssueAction.Opened,
+				Issue = child,
+				Repository = new Repository
+				{
+					Name = "sandbox",
+					Owner = new User {  Login = "kzu" },
+				},
+				Sender = new User {  Login = "kzu" }
+			});
+
+            var updated = await github.Issue.Get("kzu", "sandbox", parent.Number);
+
+			Assert.Equal(ItemState.Closed, update.State);
+
+            await github.Issue.Update("kzu", "sandbox", child.Number, new IssueUpdate { State = ItemState.Closed });
+            await github.Issue.Update("kzu", "sandbox", parent.Number, new IssueUpdate { State = ItemState.Closed });
+        }
+	}
 }

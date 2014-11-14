@@ -20,9 +20,9 @@ v0.1
 		<copyright>$copyright$</copyright>
 		<tags>$tags$</tags>
         <dependencies>
-			<!-- TODO: figure our why the replacement isn't quite working here :S -->
-            <!--<dependency id="OctoHook" version="$version$" />-->
-            <dependency id="Newtonsoft.Json" version="4.5" />
+            <dependency id="OctoHook" />
+            <dependency id="Newtonsoft.Json" />
+            <dependency id="Microsoft.AspNet.WebApi" />
         </dependencies>
 	</metadata>
 </package>

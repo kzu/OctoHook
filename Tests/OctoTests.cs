@@ -20,7 +20,7 @@
         {
             var github = new Octokit.Reactive.ObservableGitHubClient(
                 new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
-
+			
             var issues = github.Issue.GetForRepository("xamarin", "XamarinVS", new RepositoryIssueRequest
             {
                 Labels = { "Story", "story" }, 

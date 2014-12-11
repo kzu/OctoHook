@@ -63,18 +63,28 @@
 		[Fact]
 		public async Task when_updating_issue_then_can_assign_non_existent_label()
 		{
+			var label = Guid.NewGuid().ToString();
             var github = new GitHubClient(
                 new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
 
-            await github.Issue.Update("kzu", "sandbox", 56, new IssueUpdate
+			var update = new IssueUpdate
             {
                 State = ItemState.Open,
-                Labels = { "foo" },
-            });
+            };
+			update.AddLabel(label);
+
+            await github.Issue.Update("kzu", "sandbox", 56, update);
 
 			var issue = await github.Issue.Get("kzu", "sandbox", 56);
 
-			Assert.True(issue.Labels.Any(l => l.Name == "foo"));
+			Assert.True(issue.Labels.Any(l => l.Name == label));
+
+			var labels = await github.Issue.Labels.GetForRepository("kzu", "sandbox");
+			foreach (var l in labels.Select(l => l.Name)) {
+				Guid g;
+				if (Guid.TryParse(l, out g))
+					await github.Issue.Labels.Delete("kzu", "sandbox", l);
+			}
 		}
 	}
 }

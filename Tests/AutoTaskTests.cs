@@ -341,12 +341,12 @@
 		{
 			var github = new GitHubClient(new ProductHeaderValue("octohook"), new InMemoryCredentialStore(credentials));
 			var parent = await github.Issue.Create("kzu", "sandbox", new NewIssue("Parent"));
-			// Close the parent.
-			await github.Issue.Update("kzu", "sandbox", parent.Number, new IssueUpdate { State = ItemState.Closed });
 			var child = await github.Issue.Create("kzu", "sandbox", new NewIssue("Issue with link to parent")
 			{
 				Body = "Related to #" + parent.Number,
 			});
+			// Close the parent.
+			await github.Issue.Update("kzu", "sandbox", parent.Number, new IssueUpdate { State = ItemState.Closed });
 
 			try
 			{
@@ -354,7 +354,6 @@
 
 				var expectedLink = OctoHook.Properties.Strings.FormatTask(" ", "#" + child.Number, child.Title);
 				var tasker = new AutoTask(github);
-				var update = new IssueUpdate();
 
 				await tasker.ProcessAsync(new Octokit.Events.IssuesEvent
 				{
@@ -370,7 +369,7 @@
 
 				var updated = await github.Issue.Get("kzu", "sandbox", parent.Number);
 
-				Assert.Equal(ItemState.Closed, update.State);
+				Assert.Equal(ItemState.Closed, updated.State);
 			}
 			finally
 			{

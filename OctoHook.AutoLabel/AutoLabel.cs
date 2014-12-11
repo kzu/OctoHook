@@ -48,14 +48,14 @@
 
 			if (label != null)
 			{
-				update.Labels.Add(label);
+				update.AddLabel(label);
 				tracer.Verbose("Applied pre-defined label '{0}'", label);
 			}
 			else
 			{
 				// Just apply the bare label as-is otherwise.
 				label = match.Groups["simpleLabel"].Value;
-				update.Labels.Add(label);
+				update.AddLabel(label);
 				tracer.Verbose("Applied ad-hoc label '{0}'", label);
 			}
 

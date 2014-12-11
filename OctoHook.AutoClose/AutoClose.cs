@@ -96,7 +96,7 @@
 				};
 				foreach (var label in issue.Labels.Select(l => l.Name))
 				{
-					update.Labels.Add(label);
+					update.AddLabel(label);
 				}
 
 				await github.Issue.Update(

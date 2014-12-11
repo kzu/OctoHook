@@ -119,7 +119,7 @@
                     if (linked.Milestone != null)
                         update.Milestone = linked.Milestone.Number;
                     if (linked.Labels != null)
-                        update.Labels.AddRange(linked.Labels.Select(l => l.Name));
+                        update.Labels = linked.Labels.Select(l => l.Name).ToList();
 
                     // Finally, update the referenced task body.
                     await github.Issue.Update(link.Owner, link.Repo, link.Number, update);

@@ -12,9 +12,15 @@ namespace Tests
 	{
 		public static Credentials Create ()
 		{
-			var token = File.ReadAllText (@"..\..\Token");
+            var token = string.Empty;
+
+            if (File.Exists(@"..\..\Token"))
+                token = File.ReadAllText (@"..\..\Token");
+
 			if (string.IsNullOrEmpty (token))
-				token = Environment.GetEnvironmentVariable ("OCTOHOOK");
+				token = Environment.GetEnvironmentVariable ("OCTOHOOK").Trim();
+
+            token = token.Trim();
 
 			if (string.IsNullOrEmpty (token))
 				return null;

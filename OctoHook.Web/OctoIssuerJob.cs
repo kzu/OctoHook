@@ -50,7 +50,7 @@
             if (issue.Issue.Milestone != null)
                 update.Milestone = issue.Issue.Milestone.Number;
             if (issue.Issue.Labels != null)
-                update.Labels.AddRange(issue.Issue.Labels.Select(l => l.Name));
+                update.Labels = issue.Issue.Labels.Select(l => l.Name).ToList();
 
             var updated = false;
 

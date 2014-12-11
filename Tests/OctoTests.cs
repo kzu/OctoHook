@@ -13,7 +13,7 @@
 
     public class OctoTests
     {
-        static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
+		static readonly Credentials credentials = TestCredentials.Create();
 
         [Fact]
         public void when_filtering_by_label_then_ANDS_the_result()

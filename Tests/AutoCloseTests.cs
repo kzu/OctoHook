@@ -16,7 +16,7 @@
 
 	public class AutoCloseTests
 	{
-		static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
+		static readonly Credentials credentials = TestCredentials.Create();
 
 		static AutoCloseTests()
 		{

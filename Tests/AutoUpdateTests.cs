@@ -18,7 +18,7 @@
 
     public class AutoUpdateTests
     {
-        static readonly Credentials credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
+		static readonly Credentials credentials = TestCredentials.Create();
 
         [Fact]
         public async Task when_processing_issue_with_lower_case_label_then_automatically_adds_labels()

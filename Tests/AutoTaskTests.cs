@@ -18,6 +18,8 @@
 
 	public class AutoTaskTests
 	{
+		static readonly Credentials credentials = TestCredentials.Create();
+
 		static readonly Repository repository = new Repository
 			{
 				Owner = new User
@@ -303,7 +305,6 @@
 		[Fact]
 		public async Task when_task_list_link_doesnt_exists_then_adds_it_automatically_integration()
 		{
-			var credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 			var github = new GitHubClient(new ProductHeaderValue("octohook"), new InMemoryCredentialStore(credentials));
 			var story = await github.Issue.Create("kzu", "sandbox", new NewIssue("Story"));
 			var task = await github.Issue.Create("kzu", "sandbox", new NewIssue("Issue with story link")
@@ -338,7 +339,6 @@
 		[Fact]
 		public async Task when_linked_task_is_closed_then_doesnt_reopen_it_integration()
 		{
-			var credentials = new Credentials(File.ReadAllText(@"..\..\Token").Trim());
 			var github = new GitHubClient(new ProductHeaderValue("octohook"), new InMemoryCredentialStore(credentials));
 			var parent = await github.Issue.Create("kzu", "sandbox", new NewIssue("Parent"));
 			// Close the parent.

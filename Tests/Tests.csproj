@@ -96,6 +96,7 @@
     <Compile Include="MockExtensions.cs" />
     <Compile Include="OctoTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCredentials.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

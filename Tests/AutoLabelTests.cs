@@ -1,22 +1,23 @@
 ﻿namespace Tests
 {
-    using Newtonsoft.Json.Linq;
-    using OctoHook;
-    using OctoHook.Web;
-    using Octokit;
-    using Octokit.Events;
-    using Octokit.Internal;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading.Tasks;
-    using Xunit;
+	using Moq;
+	using Newtonsoft.Json.Linq;
+	using OctoHook;
+	using OctoHook.Web;
+	using Octokit;
+	using Octokit.Events;
+	using Octokit.Internal;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using System.Reflection;
+	using System.Text;
+	using System.Text.RegularExpressions;
+	using System.Threading.Tasks;
+	using Xunit;
 
-    public class AutoUpdateTests
+    public class AutoLabelTests
     {
 		static readonly Credentials credentials = TestCredentials.Create();
 
@@ -102,6 +103,15 @@
             Assert.True(updated.Labels.Any(l => l.Name == "+Doc"));
 
             await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
+        }
+
+        [Fact]
+        public void when_processing_issue_with_declared_plus_label_but_no_whitespace_prefix_then_applies_it_with_plus()
+        {
+			var github = new Mock<IGitHubClient>(MockBehavior.Strict).Object;
+            var labeler = new AutoLabel(github);
+
+			Assert.False(labeler.Process(null, new IssueUpdate { Title = "Should not label on Shit+F5" }));
         }
 
         [Fact]

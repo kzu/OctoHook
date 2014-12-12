@@ -90,7 +90,7 @@
   <ItemGroup>
     <Compile Include="AutoCloseTests.cs" />
     <Compile Include="AutoTaskTests.cs" />
-    <Compile Include="AutoUpdateTests.cs" />
+    <Compile Include="AutoLabelTests.cs" />
     <Compile Include="AutoLinkTests.cs" />
     <Compile Include="EndToEnd.cs" />
     <Compile Include="MockExtensions.cs" />

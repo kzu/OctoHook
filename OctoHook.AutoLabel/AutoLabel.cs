@@ -16,7 +16,7 @@
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLabel>();
 		// \u2713 == ✓
-		static readonly Regex expression = new Regex(@"(?<fullLabel>[\u2713|+|-](?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		static readonly Regex expression = new Regex(@"\s(?<fullLabel>[\u2713|+|-](?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 		IGitHubClient github;
 		List<string> labels;
@@ -28,6 +28,10 @@
 
 		public bool Process(IssuesEvent issue, IssueUpdate update)
 		{
+			var match = expression.Match(update.Title);
+			if (!match.Success)
+				return false;
+
 			if (labels == null)
 			{
 				labels = github.Issue.Labels.GetForRepository(issue.Repository.Owner.Login, issue.Repository.Name)
@@ -35,10 +39,6 @@
 					.Select(l => l.Name)
 					.ToList();
 			}
-
-			var match = expression.Match(update.Title);
-			if (!match.Success)
-				return false;
 
 			// Match label in case-insensitive manner, without the prefix first
 			var label = labels.FirstOrDefault(l => string.Equals(l, match.Groups["simpleLabel"].Value, StringComparison.OrdinalIgnoreCase));

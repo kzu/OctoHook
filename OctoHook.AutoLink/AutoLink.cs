@@ -56,7 +56,8 @@
 			}
 
 			// Skip issues that are the story itself.
-			if (issue.Issue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
+			if (issue.Issue.Labels != null &&
+				issue.Issue.Labels.Any(l => string.Equals(l.Name, "story", StringComparison.OrdinalIgnoreCase)))
 				return false;
 
 			// Skip the issue if it already has a story link
@@ -86,10 +87,10 @@
 
 			// Find the story with the same prefix.
 			var repository = issue.Repository.Owner.Login + "/" + issue.Repository.Name;
-			var story = await FindStoryAsync(repository, storyPrefix.Value);
-			if (story == null)
+			var story = await FindOpenStoryByPrefixAsync(repository, storyPrefix.Value);
+			if (story == null || story.State == ItemState.Closed)
 			{
-				tracer.Warn("Issue {0}/{1}#{2} has story prefix '{3}' but no matching issue with the label 'Story' or 'story' was found with such prefix.",
+				tracer.Warn("Issue {0}/{1}#{2} has story prefix '{3}' but no matching opened issue with the label 'Story' or 'story' was found with such prefix.",
 					issue.Repository.Owner.Login,
 					issue.Repository.Name,
 					issue.Issue.Number,
@@ -112,25 +113,28 @@
 			return true;
 		}
 
-		private async Task<Issue> FindStoryAsync(string repository, string query)
+		private async Task<Issue> FindOpenStoryByPrefixAsync(string repository, string storyPrefix)
 		{
-			var story = await FindIssueAsync(repository, query, ItemState.Open, "Story");
+			var story = await FindOpenStoryByPrefixAsync(repository, storyPrefix, ItemState.Open, "Story");
 			if (story == null)
-				story = await FindIssueAsync(repository, query, ItemState.Open, "story");
-			if (story == null)
-				story = await FindIssueAsync(repository, query, ItemState.Closed, "Story");
-			if (story == null)
-				story = await FindIssueAsync(repository, query, ItemState.Closed, "story");
+				story = await FindOpenStoryByPrefixAsync(repository, storyPrefix, ItemState.Open, "story");
+			
+			// Finding closed stories caused those stories to be re-opened, which wasn't 
+			// all that useful. So we stop looking for closed stories now.
+			//if (story == null)
+			//	story = await FindIssueAsync(repository, query, ItemState.Closed, "Story");
+			//if (story == null)
+			//	story = await FindIssueAsync(repository, query, ItemState.Closed, "story");
 
 			return story;
 		}
 
-		private async Task<Issue> FindIssueAsync(string repository, string query, ItemState state, string label)
+		private async Task<Issue> FindOpenStoryByPrefixAsync(string repository, string storyPrefix, ItemState state, string label)
 		{
 			tracer.Verbose("Querying for '{0}' on repo '{1}' with state '{2}' and label '{3}'.",
-				query, repository, state, label);
+				storyPrefix, repository, state, label);
 
-			var stories = await github.Search.SearchIssues(new SearchIssuesRequest(query)
+			var stories = await github.Search.SearchIssues(new SearchIssuesRequest(storyPrefix)
 			{
 				Labels = new[] { label },
 				Repo = repository,
@@ -138,11 +142,15 @@
 				State = state,
 				// Always point to newest found first.
 				Order = SortDirection.Descending,
+				// Restrict search to title only
+				In = new[] { IssueInQualifier.Title }
 			});
 
 			tracer.Verbose("Results: {0}.", stories.TotalCount);
 
-			return stories.Items.FirstOrDefault();
+			// We need an extra safeguard here since the enclosing square brackets are 
+			// ignored by GitHub, so we need to filter the results again.
+			return stories.Items.FirstOrDefault(x => x.Title.StartsWith(storyPrefix));
 		}
 	}
 }

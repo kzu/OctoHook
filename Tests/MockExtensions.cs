@@ -31,5 +31,15 @@ namespace Tests
 					TotalCount = result.Length
 				}));
 		}
+
+		public static void SetupSearch(this Mock<IGitHubClient> github, ItemState state, params Issue[] result)
+		{
+			github.Setup(x => x.Search.SearchIssues(It.Is<SearchIssuesRequest>(s => s.State == state)))
+				.Returns(Task.FromResult(new SearchIssuesResult
+				{
+					Items = result.ToList(), 
+					TotalCount = result.Length
+				}));
+		}
 	}
 }

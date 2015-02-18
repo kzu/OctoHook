@@ -36,12 +36,12 @@
 			var story = new Issue
 			{
 				Title = "[hook] Auto-linking to stories",
-				Labels = new [] { new Label { Name = "Story" } },
+				Labels = new[] { new Label { Name = "Story" } },
 			};
 			var task = new Issue
 			{
 				Title = "[hook] Task about auto-linking",
-				Labels = new [] { new Label { Name = "Task" } },
+				Labels = new[] { new Label { Name = "Task" } },
 			};
 
 			github.SetupGet(repository, task);
@@ -62,23 +62,17 @@
 		}
 
 		[Fact]
-		public void when_processing_issue_then_automatically_links_with_closed_story()
+		public void when_processing_issue_then_does_not_link_to_closed_story()
 		{
 			var github = new Mock<IGitHubClient>();
-			var story = new Issue
-			{
-				Title = "[hook] Auto-linking to closed stories",
-				Labels = new [] { new Label { Name = "Story" } },
-				State = ItemState.Closed,
-			};
 			var task = new Issue
 			{
 				Title = "[hook] Task about auto-linking to closed story",
-				Labels = new [] { new Label { Name = "Task" } },
+				Labels = new[] { new Label { Name = "Task" } },
 			};
 
 			github.SetupGet(repository, task);
-			github.SetupSearch(story);
+			github.SetupSearch();
 
 			var linker = new AutoLink(github.Object);
 			var update = new IssueUpdate();
@@ -90,8 +84,7 @@
 					Sender = repository.Owner,
 				}, update);
 
-			Assert.True(updated);
-			Assert.True(update.Body.Contains("#" + story.Number), "Expected link to #" + story.Number + " but was '" + update.Body + "'.");
+			Assert.False(updated);
 		}
 
 		[Fact]
@@ -103,14 +96,14 @@
 				Number = 1,
 				Title = "[ui] Issue with story prefix",
 				Body = "An issue with an existing story #2 link",
-				Labels = new [] { new Label { Name = "Task" } }
+				Labels = new[] { new Label { Name = "Task" } }
 			};
 
 			github.SetupGet(repository, task);
 			github.SetupGet(repository, new Issue
 			{
 				Number = 2,
-				Labels = new [] { new Label { Name = "Story" } }
+				Labels = new[] { new Label { Name = "Story" } }
 			});
 
 			var linker = new AutoLink(github.Object);
@@ -137,7 +130,7 @@
 				Number = 1,
 				Title = "[ui] Issue with story prefix",
 				Body = "An issue with an existing issue #2 link",
-				Labels = new [] { new Label { Name = "Task" } }
+				Labels = new[] { new Label { Name = "Task" } }
 			};
 
 			github.SetupGet(repository, task);

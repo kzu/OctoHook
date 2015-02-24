@@ -31,7 +31,8 @@
 
 	<ItemGroup>
 		<!-- Solutions at the root directory are all built automatically unless overriden -->
-		<SolutionFile Include="*.sln" Condition="'@(SolutionFile)' == ''" />
+		<SolutionFile Include="*.sln" Condition="'$(SolutionFile)' == ''" />
+		<SolutionFile Include="$(SolutionFile)" Condition="'$(SolutionFile)' != ''" />
 
 		<!-- NuSpec definitions alongside a .csproj cause us to call NuGet Pack on the project instead -->
 		<_PackageProject Include="**\*.csproj">

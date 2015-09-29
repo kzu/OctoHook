@@ -16,7 +16,7 @@
 	{
 		static readonly ITracer tracer = Tracer.Get<AutoLabel>();
 		// \u2713 == ✓
-		static readonly Regex expression = new Regex(@"\s(?<fullLabel>[\u2713|+|-](?<simpleLabel>[^\s]+))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+		static readonly Regex expression = new Regex(@"\s(?<fullLabel>[\u2713|+|-](?<simpleLabel>([^\s]+|[""']\\?.*?)))$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 		IGitHubClient github;
 		List<string> labels;
@@ -40,8 +40,10 @@
 					.ToList();
 			}
 
+		    var bareLabel = match.Groups["simpleLabel"].Value.Replace("\"", string.Empty);
+
 			// Match label in case-insensitive manner, without the prefix first
-			var label = labels.FirstOrDefault(l => string.Equals(l, match.Groups["simpleLabel"].Value, StringComparison.OrdinalIgnoreCase));
+			var label = labels.FirstOrDefault(l => string.Equals(l, bareLabel, StringComparison.OrdinalIgnoreCase));
 			if (label == null)
 				// Labels themselves could use the "+" sign, so we match next by the full string.
 				label = labels.FirstOrDefault(l => string.Equals(l, match.Groups["fullLabel"].Value, StringComparison.OrdinalIgnoreCase));
@@ -54,7 +56,7 @@
 			else
 			{
 				// Just apply the bare label as-is otherwise.
-				label = match.Groups["simpleLabel"].Value;
+			    label = bareLabel;
 				update.AddLabel(label);
 				tracer.Verbose("Applied ad-hoc label '{0}'", label);
 			}

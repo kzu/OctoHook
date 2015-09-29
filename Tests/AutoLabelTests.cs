@@ -22,6 +22,62 @@
 		static readonly Credentials credentials = TestCredentials.Create();
 
         [Fact]
+        public async Task when_processing_issue_with_label_having_spaces_surrounded_by_double_quotes_then_label_is_applied()
+        {
+            var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+            var repository = await github.Repository.Get("kzu", "sandbox");
+            var user = await github.User.Current();
+
+            var issue = await github.Issue.Create(
+                "kzu", "sandbox", new NewIssue("Auto-labeling label with spaces +\"label space\""));
+
+            var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
+
+            await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
+            {
+                Action = IssuesEvent.IssueAction.Opened,
+                Issue = issue,
+                Repository = repository,
+                Sender = user,
+            });
+
+            var updated = await github.Issue.Get("kzu", "sandbox", issue.Number);
+
+            Assert.Equal("Auto-labeling label with spaces", updated.Title);
+            Assert.True(updated.Labels.Any(l => l.Name == "label space"));
+
+            await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
+        }
+
+        [Fact]
+        public async Task when_processing_issue_with_label_having_spaces_surrounded_by_double_quotes_having_plus_sign_then_label_is_applied()
+        {
+            var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
+            var repository = await github.Repository.Get("kzu", "sandbox");
+            var user = await github.User.Current();
+
+            var issue = await github.Issue.Create(
+                "kzu", "sandbox", new NewIssue("Auto-labeling label with spaces +\"+label space\""));
+
+            var labeler = new OctoIssuerJob(github, new IOctoIssuer[] { new AutoLabel(github) });
+
+            await labeler.ProcessAsync(new Octokit.Events.IssuesEvent
+            {
+                Action = IssuesEvent.IssueAction.Opened,
+                Issue = issue,
+                Repository = repository,
+                Sender = user,
+            });
+
+            var updated = await github.Issue.Get("kzu", "sandbox", issue.Number);
+
+            Assert.Equal("Auto-labeling label with spaces", updated.Title);
+            Assert.True(updated.Labels.Any(l => l.Name == "[+label space]"));
+
+            await github.Issue.Update("kzu", "sandbox", issue.Number, new IssueUpdate { State = ItemState.Closed });
+        }
+
+        [Fact]
         public async Task when_processing_issue_with_lower_case_label_then_automatically_adds_labels()
         {
             var github = new GitHubClient(new ProductHeaderValue("kzu-client"), new InMemoryCredentialStore(credentials));
